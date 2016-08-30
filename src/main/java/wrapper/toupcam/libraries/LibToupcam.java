@@ -11,4 +11,6 @@ public interface LibToupcam extends Library {
 	int Toupcam_Open();
 	int Toupcam_Enum(Pointer pointer);
 	
+	Pointer Toupcam_Open(String id);
+	
 }

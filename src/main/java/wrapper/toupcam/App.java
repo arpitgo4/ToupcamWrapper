@@ -26,6 +26,7 @@ public class App implements ToupCam {
 		//app.callHelloSOMethods();
 		//app.callCameraSOMethods();
 		app.getToupcams();
+		//System.out.println(app.openCam(null));
 	}
 	
 	public void callCameraSOMethods(){
@@ -35,7 +36,7 @@ public class App implements ToupCam {
         System.out.println("Number of Toupcams cameras detected: " + libToupcam.Toupcam_Enum(structure));
               
         System.out.println("DisplayName: " + structure.getString(0));
-        System.out.println("Id: " + structure.getString(1 * 63));
+        System.out.println("Id: " + structure.getString(1 * 64));
         
         Pointer modelPointer = structure.getPointer(128);
         int modelPointerOffset = 0;
@@ -68,7 +69,7 @@ public class App implements ToupCam {
     }
     
     /**
-     * Checks for the machine's architecture and OS and load 
+     * Checks for the machine's architecture and OS, load 
      * and returns machine specific native library.
      * 
      * Machine Architecture: 32-bit or 64-bit
@@ -110,9 +111,9 @@ public class App implements ToupCam {
 			
 			int structurePointerOffset = 0;
 			toupcamInst.setDisplayName(structurePointer.getString(structurePointerOffset));
-			structurePointerOffset += 63;
+			structurePointerOffset += 64;
 			toupcamInst.setId(structurePointer.getString(structurePointerOffset));
-			structurePointerOffset += 65;
+			structurePointerOffset += 64;
 			
 			Pointer modelPointer = structurePointer.getPointer(structurePointerOffset);
 			int modelPointerOffset = 0;
@@ -150,4 +151,7 @@ public class App implements ToupCam {
 		return toupcamInstList;
 	}
 	
+	public Object openCam(String id){
+		return libToupcam.Toupcam_Open(id);
+	}
 }
