@@ -2,12 +2,16 @@ package wrapper.toupcam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
+import wrapper.toupcam.enumerations.Event;
+import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.libraries.Hello;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Model;
@@ -18,15 +22,19 @@ import wrapper.toupcam.util.Constants;
 
 public class App implements ToupCam {
     
-    LibToupcam libToupcam = null;
+    private LibToupcam libToupcam = null;
+    private Pointer camHandler;
     
 	public static void main(String[] args){
 		App app = new App();
 		Native.setProtected(true);
 		//app.callHelloSOMethods();
 		//app.callCameraSOMethods();
+		Pointer handler = app.openCam(null);
 		app.getToupcams();
-		//System.out.println(app.openCam(null));
+		app.startPullWithCallBack(handler);
+		System.out.println(app.getSnapShot(handler, 0));
+		app.getImage();
 	}
 	
 	public void callCameraSOMethods(){
@@ -151,7 +159,32 @@ public class App implements ToupCam {
 		return toupcamInstList;
 	}
 	
-	public Object openCam(String id){
-		return libToupcam.Toupcam_Open(id);
+	public Pointer openCam(String id){
+		camHandler = libToupcam.Toupcam_Open(id);
+		return camHandler;
 	}
+	
+	
+	public HResult startPullWithCallBack(Pointer handler){
+		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new PTOUPCAM_EVENT_CALLBACK() {
+			@Override public void invoke(long event) {
+				System.out.println(Event.key(event) + " callback called!");
+			}
+		}, 0);
+		return HResult.key(result);
+	}
+	
+	public HResult getSnapShot(Pointer handler, int resolutionIndex){
+		return HResult.key(libToupcam.Toupcam_Snap(handler, resolutionIndex));
+	}
+	
+	public HResult getImage(){
+		int result = libToupcam.Toupcam_PullImage(openCam(null), new Memory(20 * 20), 8, 20, 20);
+		return HResult.key(result);
+	}
+
+	public Pointer getCamHandler() {return camHandler;}
+	public void setCamHandler(Pointer camHandler) {this.camHandler = camHandler;}
+	
+	
 }

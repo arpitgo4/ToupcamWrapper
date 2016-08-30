@@ -1,6 +1,6 @@
-package wrapper.toupcam.models;
+package wrapper.toupcam.enumerations;
 
-public enum EFLAG {
+public enum Flag {
 
 	FLAG_CMOS(0x00000001),       //cmos sensor
 	FLAG_CCD_PROGRESSIVE(0x00000002),   // progressive ccd sensor
@@ -25,8 +25,16 @@ public enum EFLAG {
 
 	private int value;
 	
-	EFLAG(int value){
+	Flag(int value){
 		this.value = value;
+	}
+	
+	public static Flag key(long event){
+		for(Flag v : values()){
+			if(v.value == event)
+				return v;
+		}
+		return null;
 	}
 	
 }
