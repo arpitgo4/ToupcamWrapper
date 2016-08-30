@@ -9,7 +9,7 @@ public class Model implements IModel {
 	public long maxspeed;
 	public long preview;
 	public long still;
-	public Resolution[] res = new Resolution[10];
+	public Resolution[] res;
 	
 	public String getName() {
 		return name;
