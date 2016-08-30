@@ -1,2 +1,2 @@
 # toupcamWrapper
-This is a wrapper implementation for Touptek's imaging cameras ( Toupcam ).
+This is a platform independent wrapper implementation for Touptek's imaging cameras ( Toupcam ).
