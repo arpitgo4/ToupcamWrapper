@@ -2,7 +2,7 @@ package wrapper.toupcam.libraries;
 
 import com.sun.jna.Library;
 
-import wrapper.toupcam.structures.MyStructure;
+import wrapper.toupcam.models.MyStructure;
 
 public interface Hello extends Library {
 	

@@ -3,7 +3,7 @@ package wrapper.toupcam.libraries;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-import wrapper.toupcam.structures.ToupcamInst;
+import wrapper.toupcam.models.ToupcamInst;
 
 public interface LibToupcam extends Library {
 	

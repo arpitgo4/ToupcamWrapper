@@ -1,4 +1,4 @@
-package wrapper.toupcam.structures;
+package wrapper.toupcam.models;
 
 import java.util.Arrays;
 import java.util.List;
