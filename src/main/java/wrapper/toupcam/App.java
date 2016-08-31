@@ -148,7 +148,7 @@ public class App implements ToupCam  {
 					//System.out.println("Still Image Available!");
 					Image image = getStillImage(handler);
 					System.out.println(image);
-					convertPointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
+					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 					
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					//System.out.println("Image Data Available");
@@ -164,22 +164,10 @@ public class App implements ToupCam  {
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap) {
 				System.out.println("isSnap: " + isSnap + ", Image Recevied: " + imagePointer);
-				convertPointerToImage(imagePointer, 1280, 960);  // 1280 * 960
+				Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
 			}
 		}, 0);
 		return HResult.key(result);
-	}
-	public void convertPointerToImage(Pointer imagePointer, int width, int height){
-		byte[] imageBytes = imagePointer.getByteArray(0, width * height);
-		InputStream in = new ByteArrayInputStream(imageBytes);
-		BufferedImage bImageFromConvert;
-		try {
-			bImageFromConvert = ImageIO.read(in);
-			ImageIO.write(bImageFromConvert, "jpg", new File(
-					Constants.PATH + "/image.jpg"));
-		} catch (Exception e) {
-			System.out.println("Exception thrown during convertion : " + e);
-		}
 	}
 	
 	public HResult setOptions(Pointer handler, Options option, int value){
