@@ -25,6 +25,8 @@ public interface LibToupcam extends Library {
 	
 	void Toupcam_HotPlug(PTOUPCAM_HOTPLUG_CALLBACK callback);
 	
+	int Toupcam_put_eSize(Pointer handler, int resolutionIndex);
+	
 	/**
 	 * To set various options for the toupcam to work.
 	 * Like set Raw format images, quality of received images.

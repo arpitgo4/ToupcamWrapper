@@ -31,14 +31,16 @@ public class App implements ToupCam  {
 		App app = new App();
 		Native.setProtected(true);
 		List<ToupcamInst> cams = app.getToupcams();
+		System.out.println(cams);
 		app.registerPlugInOrOut();
 		Pointer handler = app.openCam(null);
+		System.out.println("Set Resolution Result: " + app.setResolution(handler, 1));
 		System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 		//System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 		
-		/*System.out.println("Start Push Result: " + app.startPushMode(handler));
-		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));*/
+		System.out.println("Start Push Result: " + app.startPushMode(handler));
+		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 	}
 	
 	public App(){
@@ -77,6 +79,10 @@ public class App implements ToupCam  {
 				System.out.println("Camera is pluged in or out.");
 			}
 		});
+	}
+	
+	public HResult setResolution(Pointer handler, int resolutionIndex){
+		return HResult.key(libToupcam.Toupcam_put_eSize(handler, resolutionIndex));
 	}
 
 	@Override
