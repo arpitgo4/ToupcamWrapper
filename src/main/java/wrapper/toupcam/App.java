@@ -1,7 +1,14 @@
 package wrapper.toupcam;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -14,6 +21,7 @@ import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
 import wrapper.toupcam.libraries.Hello;
 import wrapper.toupcam.libraries.LibToupcam;
+import wrapper.toupcam.models.Image;
 import wrapper.toupcam.models.Model;
 import wrapper.toupcam.models.MyStructure;
 import wrapper.toupcam.models.Resolution;
@@ -25,14 +33,13 @@ public class App implements ToupCam  {
 
 	private LibToupcam libToupcam = null;
 	private Pointer camHandler;
-	private Memory imageBuffer;
 
 	public static void main(String[] args){
 		App app = new App();
 		Native.setProtected(true);
+		List<ToupcamInst> cams = app.getToupcams();
 		Pointer handler = app.openCam(null);
-		System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
-		//app.getToupcams();
+		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 	}
@@ -171,14 +178,31 @@ public class App implements ToupCam  {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					//System.out.println("Still Image Available!");
-					System.out.println(getStillImage(handler, 20, 20));
+					Image image = getStillImage(handler);
+					System.out.println(image);
+					convertPointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
+					
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					//System.out.println("Image Data Available");
-					//System.out.println(getImage(handler));
+					Image image = getImage(handler);
+					//convertPointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 				}
 			}
-		}, 0);
+		}, 10);
 		return HResult.key(result);
+	}
+	
+	public void convertPointerToImage(Pointer imagePointer, int width, int height){
+		byte[] imageBytes = imagePointer.getByteArray(0, width * height);
+		InputStream in = new ByteArrayInputStream(imageBytes);
+		BufferedImage bImageFromConvert;
+		try {
+			bImageFromConvert = ImageIO.read(in);
+			ImageIO.write(bImageFromConvert, "jpg", new File(
+					Constants.PATH + "/image.jpg"));
+		} catch (Exception e) {
+			System.out.println("Exception thrown during convertion : " + e);
+		}
 	}
 	
 	public HResult setOptions(Pointer handler, Options option, int value){
@@ -189,16 +213,20 @@ public class App implements ToupCam  {
 		return HResult.key(libToupcam.Toupcam_Snap(handler, resolutionIndex));
 	}
 
-	public HResult getImage(Pointer handler){
-		imageBuffer = new Memory(1000);
-		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 8, 20, 20);
-		return HResult.key(result);
+	public Image getImage(Pointer handler){
+		//width=1280, height=960
+		Pointer imageBuffer = new Memory(1280 * 960);
+		Pointer width = new Memory(4), height = new Memory(4);
+		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 8, width, height);
+		return new Image(imageBuffer, width.getInt(0), height.getInt(0),HResult.key(result));
 	}
 	
-	public HResult getStillImage(Pointer handler, int width, int height){
-		imageBuffer = new Memory(width * height);
+	public Image getStillImage(Pointer handler){
+		//width=2592, height=1944	
+		Pointer imageBuffer = new Memory(2592 * 1944);
+		Pointer width = new Memory(4), height = new Memory(4);
 		int result = libToupcam.Toupcam_PullStillImage(handler, imageBuffer, 8, width, height);
-		return HResult.key(result);
+		return new Image(imageBuffer, width.getInt(0), height.getInt(0), HResult.key(result));
 	}
 
 	public Pointer getCamHandler() {return camHandler;}

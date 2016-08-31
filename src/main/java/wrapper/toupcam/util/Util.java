@@ -1,5 +1,7 @@
 package wrapper.toupcam.util;
 
+import com.sun.jna.Pointer;
+
 public class Util {
 
 	/**
@@ -14,5 +16,9 @@ public class Util {
 		}).start();
 	}
 	
+	public static void displayBytes(Pointer pointer){
+		for(int i = 0; i < 100; i++)
+			System.out.print(pointer.getByte(i));
+	}
 	
 }
