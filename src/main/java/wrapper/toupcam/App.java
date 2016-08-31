@@ -15,6 +15,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
 import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
@@ -40,45 +41,12 @@ public class App implements ToupCam  {
 		List<ToupcamInst> cams = app.getToupcams();
 		Pointer handler = app.openCam(null);
 		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
-		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
-		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
+		//System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
+		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
+		
+		System.out.println("Start Push Result: " + app.startPushMode(handler));
 	}
 	
-	public void callCameraSOMethods(){
-		libToupcam = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x64_TOUPCAM_SO, LibToupcam.class);
-
-		Pointer structure = new Memory(512 * 16);
-		System.out.println("Number of Toupcams cameras detected: " + libToupcam.Toupcam_Enum(structure));
-
-		System.out.println("DisplayName: " + structure.getString(0));
-		System.out.println("Id: " + structure.getString(1 * 64));
-
-		Pointer modelPointer = structure.getPointer(128);
-		int modelPointerOffset = 0;
-		Pointer modelNamePointer = modelPointer.getPointer(0);
-
-		System.out.println("Model Name: " + modelNamePointer.getString(0));
-		modelPointerOffset += Pointer.SIZE;
-		System.out.println("Flag: " + modelPointer.getInt(modelPointerOffset));
-		modelPointerOffset += Constants.INT_SIZE;
-		System.out.println("MaxSpeed: " + modelPointer.getInt(modelPointerOffset));
-		modelPointerOffset += Constants.INT_SIZE;
-		System.out.println("Still: " + modelPointer.getInt(modelPointerOffset));
-		modelPointerOffset += Constants.INT_SIZE;
-		System.out.println("Preview: " + modelPointer.getInt(modelPointerOffset));
-		modelPointerOffset += Constants.INT_SIZE;
-
-
-	}
-
-	public void callHelloSOMethods(){
-		Hello helloLib = (Hello) Native.loadLibrary(Constants.PATH + Constants.HELLO_SO, Hello.class);
-		helloLib.printHello();
-		MyStructure st = new MyStructure();
-		helloLib.printStruct(st);
-		helloLib.printStructPointer(st);
-	}
-
 	public App(){
 		libToupcam = (LibToupcam) getNativeLib();
 		Util.keepVMRunning();				// keep JVM from terminating
@@ -192,6 +160,15 @@ public class App implements ToupCam  {
 		return HResult.key(result);
 	}
 	
+	public HResult startPushMode(Pointer handler){
+		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
+			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap) {
+				System.out.println("isSnap: " + isSnap + ", Image Recevied: " + imagePointer);
+				convertPointerToImage(imagePointer, 1280, 960);  // 1280 * 960
+			}
+		}, 0);
+		return HResult.key(result);
+	}
 	public void convertPointerToImage(Pointer imagePointer, int width, int height){
 		byte[] imageBytes = imagePointer.getByteArray(0, width * height);
 		InputStream in = new ByteArrayInputStream(imageBytes);
