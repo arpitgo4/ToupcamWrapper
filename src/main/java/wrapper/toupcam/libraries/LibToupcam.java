@@ -21,7 +21,7 @@ public interface LibToupcam extends Library {
 	
 	int Toupcam_Snap(Pointer handler, int resolutionIndex);
 	
-	int Toupcam_StartPushMode(Pointer handler, PTOUPCAM_DATA_CALLBACK callback, int other);
+	int Toupcam_StartPushMode(Pointer handler, PTOUPCAM_DATA_CALLBACK callback, Pointer other);
 	
 	void Toupcam_HotPlug(PTOUPCAM_HOTPLUG_CALLBACK callback);
 	

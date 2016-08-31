@@ -150,7 +150,7 @@ public class App implements ToupCam  {
 
 	public HResult startPullWithCallBack(Pointer handler){
 		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new PTOUPCAM_EVENT_CALLBACK() {
-			@Override public void invoke(long event) {
+			@Override public void invoke(long event, Pointer context) {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					//System.out.println("Still Image Available!");
@@ -170,12 +170,13 @@ public class App implements ToupCam  {
 	
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
-			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap) {
+			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap, Pointer context) {
 				System.out.println("isSnap: " + isSnap + ",Image Recevied: " + imagePointer 
-						+ ",Image MetaData Recevied: " + imageMetaData);
-				Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
+						+ ",Image MetaData Recevied: " + imageMetaData + ",Context: " + context);
+				//System.out.println(Pointer.nativeValue(imagePointer));
+				//Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
 			}
-		}, 0);
+		}, new Memory(100));
 		return HResult.key(result);
 	}
 	
