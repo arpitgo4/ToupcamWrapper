@@ -1,14 +1,7 @@
 package wrapper.toupcam;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -20,11 +13,9 @@ import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
-import wrapper.toupcam.libraries.Hello;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
 import wrapper.toupcam.models.Model;
-import wrapper.toupcam.models.MyStructure;
 import wrapper.toupcam.models.Resolution;
 import wrapper.toupcam.models.ToupcamInst;
 import wrapper.toupcam.util.Constants;
