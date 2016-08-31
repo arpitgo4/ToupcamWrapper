@@ -10,6 +10,7 @@ import com.sun.jna.Pointer;
 
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
 import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
+import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
@@ -30,12 +31,14 @@ public class App implements ToupCam  {
 		App app = new App();
 		Native.setProtected(true);
 		List<ToupcamInst> cams = app.getToupcams();
+		app.registerPlugInOrOut();
 		Pointer handler = app.openCam(null);
-		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
+		System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 		//System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 		
-		System.out.println("Start Push Result: " + app.startPushMode(handler));
+		/*System.out.println("Start Push Result: " + app.startPushMode(handler));
+		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));*/
 	}
 	
 	public App(){
@@ -66,6 +69,14 @@ public class App implements ToupCam  {
 				nativeLib = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x86_TOUPCAM_DLL, LibToupcam.class);
 		}
 		return nativeLib;
+	}
+	
+	public void registerPlugInOrOut(){
+		libToupcam.Toupcam_HotPlug(new PTOUPCAM_HOTPLUG_CALLBACK() {
+			@Override public void invoke() {
+				System.out.println("Camera is pluged in or out.");
+			}
+		});
 	}
 
 	@Override
@@ -154,7 +165,7 @@ public class App implements ToupCam  {
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap) {
-				System.out.println("isSnap: " + isSnap + ", Image Recevied: " + imagePointer);
+				System.out.println("isSnap: " + isSnap + ",Image Recevied: " + imagePointer);
 				Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
 			}
 		}, 0);
