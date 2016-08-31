@@ -4,7 +4,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
-import wrapper.toupcam.models.ToupcamInst;
+import wrapper.toupcam.enumerations.Options;
 
 public interface LibToupcam extends Library {
 	

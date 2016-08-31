@@ -11,6 +11,7 @@ import com.sun.jna.Pointer;
 import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
+import wrapper.toupcam.enumerations.Options;
 import wrapper.toupcam.libraries.Hello;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Model;
@@ -30,6 +31,7 @@ public class App implements ToupCam  {
 		App app = new App();
 		Native.setProtected(true);
 		Pointer handler = app.openCam(null);
+		System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 		//app.getToupcams();
 		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
@@ -177,6 +179,10 @@ public class App implements ToupCam  {
 			}
 		}, 0);
 		return HResult.key(result);
+	}
+	
+	public HResult setOptions(Pointer handler, Options option, int value){
+		return HResult.key(libToupcam.Toupcam_put_Option(handler, option.getValue(), value));
 	}
 
 	public HResult getSnapShot(Pointer handler, int resolutionIndex){

@@ -21,4 +21,16 @@ public enum Options
     Options(int value){
     	this.value = value;
     }
+    
+    public int getValue(){
+    	return value;
+    }
+    
+    public static Options key(long option){
+		for(Options v : values()){
+			if(v.value == option)
+				return v;
+		}
+		return null;
+	}
 };
