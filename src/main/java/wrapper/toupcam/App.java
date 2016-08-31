@@ -164,14 +164,15 @@ public class App implements ToupCam  {
 					//convertPointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 				}
 			}
-		}, 10);
+		}, 0);
 		return HResult.key(result);
 	}
 	
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap) {
-				System.out.println("isSnap: " + isSnap + ",Image Recevied: " + imagePointer);
+				System.out.println("isSnap: " + isSnap + ",Image Recevied: " + imagePointer 
+						+ ",Image MetaData Recevied: " + imageMetaData);
 				Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
 			}
 		}, 0);
