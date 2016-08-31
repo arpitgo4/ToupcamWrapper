@@ -170,10 +170,10 @@ public class App implements ToupCam  {
 			@Override public void invoke(long event) {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
-					System.out.println("Still Image Available!");
-					System.out.println(getStillImage(handler));
+					//System.out.println("Still Image Available!");
+					System.out.println(getStillImage(handler, 20, 20));
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
-					System.out.println("Image Data Available");
+					//System.out.println("Image Data Available");
 					//System.out.println(getImage(handler));
 				}
 			}
@@ -195,9 +195,9 @@ public class App implements ToupCam  {
 		return HResult.key(result);
 	}
 	
-	public HResult getStillImage(Pointer handler){
-		imageBuffer = new Memory(100000);
-		int result = libToupcam.Toupcam_PullStillImage(handler, imageBuffer, 8, 20, 20);
+	public HResult getStillImage(Pointer handler, int width, int height){
+		imageBuffer = new Memory(width * height);
+		int result = libToupcam.Toupcam_PullStillImage(handler, imageBuffer, 8, width, height);
 		return HResult.key(result);
 	}
 
