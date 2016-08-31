@@ -1,10 +1,18 @@
 package wrapper.toupcam.util;
 
-import java.util.Enumeration;
-
 public class Util {
 
-	
+	/**
+	 * to keep the JVM running, for receiving callbacks
+	 * from toupcam.
+	 */
+	public static void keepVMRunning(){
+		new Thread(new Runnable(){
+			@Override public void run(){
+				while(true){}
+			}
+		}).start();
+	}
 	
 	
 }

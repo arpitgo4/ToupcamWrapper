@@ -3,8 +3,6 @@ package wrapper.toupcam;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
@@ -20,36 +18,24 @@ import wrapper.toupcam.models.MyStructure;
 import wrapper.toupcam.models.Resolution;
 import wrapper.toupcam.models.ToupcamInst;
 import wrapper.toupcam.util.Constants;
+import wrapper.toupcam.util.Util;
 
-public class App  extends Thread implements ToupCam  {
+public class App implements ToupCam  {
 
 	private LibToupcam libToupcam = null;
 	private Pointer camHandler;
 	private Memory imageBuffer;
 
-	/**
-	 * to keep the JVM running.
-	 */
-	@Override
-	public void run(){
-		Thread newThread = new Thread(new Runnable() {
-			@Override public void run() {
-				while(true){}
-			}
-		});
-		newThread.start();
-	}
-
 	public static void main(String[] args){
 		App app = new App();
+		Util.keepVMRunning();
 		Native.setProtected(true);
 		Pointer handler = app.openCam(null);
 		//app.getToupcams();
 		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
-		app.start();
 	}
-
+	
 	public void callCameraSOMethods(){
 		libToupcam = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x64_TOUPCAM_SO, LibToupcam.class);
 
