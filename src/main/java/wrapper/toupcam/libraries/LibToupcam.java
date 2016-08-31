@@ -19,4 +19,14 @@ public interface LibToupcam extends Library {
 	int Toupcam_PullStillImage(Pointer handler, Pointer pImageData, int bits, long pnWidth, long pnHeight);
 	
 	int Toupcam_Snap(Pointer handler, int resolutionIndex);
+	
+	/**
+	 * To set various options for the toupcam to work.
+	 * Like set Raw format images, quality of received images.
+	 * @param handler
+	 * @param iOption
+	 * @param iValue
+	 * @return
+	 */
+	int Toupcam_put_Option(Pointer handler, int iOption, int iValue);
 }

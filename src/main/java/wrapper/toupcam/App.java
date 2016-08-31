@@ -28,12 +28,11 @@ public class App implements ToupCam  {
 
 	public static void main(String[] args){
 		App app = new App();
-		Util.keepVMRunning();
 		Native.setProtected(true);
 		Pointer handler = app.openCam(null);
 		//app.getToupcams();
 		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
-		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
+		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 	}
 	
 	public void callCameraSOMethods(){
@@ -73,6 +72,7 @@ public class App implements ToupCam  {
 
 	public App(){
 		libToupcam = (LibToupcam) getNativeLib();
+		Util.keepVMRunning();				// keep JVM from terminating
 	}
 
 	/**
@@ -169,10 +169,10 @@ public class App implements ToupCam  {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					System.out.println("Still Image Available!");
-					System.out.println(getImage(handler));
+					System.out.println(getStillImage(handler));
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					System.out.println("Image Data Available");
-					System.out.println(getImage(handler));
+					//System.out.println(getImage(handler));
 				}
 			}
 		}, 0);
@@ -184,7 +184,7 @@ public class App implements ToupCam  {
 	}
 
 	public HResult getImage(Pointer handler){
-		imageBuffer = new Memory(100000);
+		imageBuffer = new Memory(1000);
 		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 8, 20, 20);
 		return HResult.key(result);
 	}
