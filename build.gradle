@@ -19,8 +19,6 @@ repositories {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.2.2'
-	compile group: 'org.springframework', name: 'spring-context', version: '4.3.2.RELEASE'
-    
 
     testCompile 'junit:junit:4.12'
 }
