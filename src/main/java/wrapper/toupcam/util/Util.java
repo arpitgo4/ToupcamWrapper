@@ -51,19 +51,19 @@ public class Util {
 	        ints[indexPix] = rgb; 
 		}
 		newbImage.getRGB(0, 0, width, height, ints, 0, width);
-		
-		//InputStream in = new ByteArrayInputStream(imageBytes);
-		BufferedImage bImageFromConvert;
+		writeImageToDisk(newbImage);		
+	}
+
+	private static void writeImageToDisk(BufferedImage image){
 		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
-			//bImageFromConvert = ImageIO.read(in);
-			ImageIO.write(newbImage, "png", new File(
+			ImageIO.write(image, "png", new File(
 					Constants.IMAGES_PATH + "/image" + counter++ + ".png"));
 		} catch (Exception e) {
 			System.out.println("Exception thrown during convertion : " + e);
 		}
 	}
-
+	
 	private static void createImageDir() {
 		File file = new File(Constants.IMAGES_PATH);
 		if(!file.exists())
