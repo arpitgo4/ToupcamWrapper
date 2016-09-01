@@ -1,6 +1,5 @@
 package wrapper.toupcam;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import wrapper.toupcam.enumerations.Options;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
 import wrapper.toupcam.models.Model;
+import wrapper.toupcam.models.RawFormat;
 import wrapper.toupcam.models.Resolution;
 import wrapper.toupcam.models.ToupcamInst;
 import wrapper.toupcam.util.Constants;
@@ -80,6 +80,12 @@ public class App implements ToupCam  {
 				System.out.println("Camera is pluged in or out.");
 			}
 		});
+	}
+	
+	public RawFormat getRawFormat(Pointer handler){
+		Pointer nFourCC = new Memory(4), bitdepth = new Memory(4);
+		int result = libToupcam.Toupcam_get_RawFormat(handler, nFourCC, bitdepth);
+		return new RawFormat(nFourCC.getInt(0), bitdepth.getInt(0), HResult.key(result));
 	}
 	
 	public HResult setResolution(Pointer handler, int resolutionIndex){

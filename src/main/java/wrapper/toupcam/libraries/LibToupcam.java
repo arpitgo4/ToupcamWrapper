@@ -27,6 +27,8 @@ public interface LibToupcam extends Library {
 	
 	int Toupcam_put_eSize(Pointer handler, int resolutionIndex);
 	
+	int Toupcam_get_RawFormat(Pointer handler, Pointer nFourCC, Pointer bitdepth);
+	
 	/**
 	 * To set various options for the toupcam to work.
 	 * Like set Raw format images, quality of received images.
