@@ -35,11 +35,11 @@ public class App implements ToupCam  {
 		app.registerPlugInOrOut();
 		Pointer handler = app.openCam(null);
 		System.out.println("Set Resolution Result: " + app.setResolution(handler, 1));
-		System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
-		//System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
+	    //System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
+		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 		
-		System.out.println("Start Push Result: " + app.startPushMode(handler));
+		//System.out.println("Start Push Result: " + app.startPushMode(handler));
 		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 	}
 	
@@ -161,7 +161,7 @@ public class App implements ToupCam  {
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					//System.out.println("Image Data Available");
 					Image image = getImage(handler);
-					//convertPointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
+					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 				}
 			}
 		}, 0);
@@ -170,14 +170,26 @@ public class App implements ToupCam  {
 	
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
-			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnap, Pointer context) {
-				System.out.println("isSnap: " + isSnap + ",Image Recevied: " + imagePointer 
-						+ ",Image MetaData Recevied: " + imageMetaData + ",Context: " + context);
-				//System.out.println(Pointer.nativeValue(imagePointer));
-				//Util.convertImagePointerToImage(imagePointer, 1280, 960);  // 1280 * 960
+			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot, Pointer context) {
+				//System.out.println("isSnap: " + isSnapshot + ",Image Recevied: " + imagePointer 
+				//		+ ",Image MetaData Recevied: " + imageMetaData + ",Context: " + context);
+				getImageMetaData(imageMetaData);
+				
+				
+				
+				//Util.displayBytes(imagePointer);
+				Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
 			}
 		}, new Memory(100));
 		return HResult.key(result);
+	}
+	
+	public void getImageMetaData(Pointer metaDataPointer){
+		System.out.println("Width: " + metaDataPointer.getInt(4));
+		System.out.println("Height: " + metaDataPointer.getInt(8));
+		System.out.println("Planes: " + metaDataPointer.getInt(12));
+		System.out.println("Bit Count: " + (metaDataPointer.getInt(14)/8));
+		System.out.println("Image Size: " + metaDataPointer.getInt(16));
 	}
 	
 	public HResult setOptions(Pointer handler, Options option, int value){
