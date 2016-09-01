@@ -172,13 +172,11 @@ public class App implements ToupCam  {
 			@Override public void invoke(long event) {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
-					//System.out.println("Still Image Available!");
 					Image image = getStillImage(handler);
 					System.out.println(image);
 					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 					
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
-					//System.out.println("Image Data Available");
 					Image image = getImage(handler);
 					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 				}
@@ -194,7 +192,7 @@ public class App implements ToupCam  {
 				System.out.println(header);
 				//Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
 			}
-		}, new Memory(100));
+		}, Pointer.NULL);
 		return HResult.key(result);
 	}
 	
