@@ -54,13 +54,20 @@ public class Util {
 		
 		//InputStream in = new ByteArrayInputStream(imageBytes);
 		BufferedImage bImageFromConvert;
+		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
 			//bImageFromConvert = ImageIO.read(in);
 			ImageIO.write(newbImage, "png", new File(
-					Constants.PATH + "/image" + counter++ + ".png"));
+					Constants.IMAGES_PATH + "/image" + counter++ + ".png"));
 		} catch (Exception e) {
 			System.out.println("Exception thrown during convertion : " + e);
 		}
+	}
+
+	private static void createImageDir() {
+		File file = new File(Constants.IMAGES_PATH);
+		if(!file.exists())
+			file.mkdirs();
 	}
 	
 }

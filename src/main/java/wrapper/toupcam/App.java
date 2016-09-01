@@ -74,14 +74,14 @@ public class App implements ToupCam  {
 		Object nativeLib;
 		if(Platform.is64Bit()){
 			if(Platform.isLinux())
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x64_TOUPCAM_SO, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x64_TOUPCAM_SO, LibToupcam.class);
 			else
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x64_TOUPCAM_DLL, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x64_TOUPCAM_DLL, LibToupcam.class);
 		}else {
 			if(Platform.isLinux())
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x86_TOUPCAM_SO, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x86_TOUPCAM_SO, LibToupcam.class);
 			else
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.PATH + Constants.x86_TOUPCAM_DLL, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x86_TOUPCAM_DLL, LibToupcam.class);
 		}
 		return nativeLib;
 	}
