@@ -29,9 +29,9 @@ public enum Flag {
 		this.value = value;
 	}
 	
-	public static Flag key(long event){
+	public static Flag key(long flag){
 		for(Flag v : values()){
-			if(v.value == event)
+			if(v.value == flag)
 				return v;
 		}
 		return null;

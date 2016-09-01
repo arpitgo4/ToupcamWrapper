@@ -1,7 +1,5 @@
 package wrapper.toupcam.enumerations;
 
-import java.util.Enumeration;
-
 public enum Event {
 	
 	EVENT_EXPOSURE(0x0001),		 	/* exposure time changed */

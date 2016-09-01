@@ -16,9 +16,9 @@ public enum HResult {
 		this.value = value;
 	}
 	
-	public static HResult key(long event){
+	public static HResult key(long hresult){
 		for(HResult v : values()){
-			if(v.value == event)
+			if(v.value == hresult)
 				return v;
 		}
 		return null;

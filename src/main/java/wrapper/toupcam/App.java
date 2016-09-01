@@ -22,6 +22,7 @@ import wrapper.toupcam.models.RawFormat;
 import wrapper.toupcam.models.Resolution;
 import wrapper.toupcam.models.ToupcamInst;
 import wrapper.toupcam.util.Constants;
+import wrapper.toupcam.util.ParserUtil;
 import wrapper.toupcam.util.Util;
 
 public class App implements ToupCam  {
@@ -189,7 +190,7 @@ public class App implements ToupCam  {
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaDataPointer, boolean isSnapshot) {
-				ImageHeader header = Util.parseImageHeader(imageMetaDataPointer);
+				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
 				//Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
 			}
