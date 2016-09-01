@@ -18,7 +18,8 @@ public class NativeLibExtractor {
 
 	public static void main(String[] args) throws Exception{
 		NativeLibExtractor extractor = new NativeLibExtractor();
-		extractor.extractNativeLibs();
+		boolean result = extractor.extractNativeLibs();
+		System.out.println(result);
 	}
 	
 	private List<String> nativeLibs = Arrays.asList(new String[]{
@@ -26,13 +27,13 @@ public class NativeLibExtractor {
 			Constants.x86_TOUPCAM_DLL, Constants.x86_TOUPCAM_SO
 	});
 	
-	public void extractNativeLibs(){
-		System.out.println("Extracting the nativeLibs. . .");
+	public boolean extractNativeLibs(){
 		ClassLoader classLoader = NativeLibExtractor.class.getClassLoader();
 		
-		nativeLibs.forEach(nativeLib -> {
-			// extracting subdir's name from resources path.  x64/libToupcam.so => x64
-			createNativeDir(nativeLib.substring(0, nativeLib.indexOf("/")));
+		for(String nativeLib : nativeLibs) {
+			// extracting subdir's name from resources path.  eg. (x64/libToupcam.so) => x64
+			String subDir = nativeLib.substring(0, nativeLib.indexOf("/"));
+			createNativeDir(subDir);
 			
 			try(InputStream in = classLoader.getResourceAsStream(nativeLib);
 				FileOutputStream outStream = 
@@ -43,8 +44,9 @@ public class NativeLibExtractor {
 				while((len = in.read(buf)) != -1)
 		            outStream.write(buf,0,len);
 		        
-			}catch(Exception e){e.printStackTrace();}
-		});
+			}catch(Exception e){return false;}
+		}
+		return true;
 	}
 	
 	private void createNativeDir(String subDir) {
