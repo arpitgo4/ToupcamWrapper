@@ -1,5 +1,6 @@
 package wrapper.toupcam;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import wrapper.toupcam.models.RawFormat;
 import wrapper.toupcam.models.Resolution;
 import wrapper.toupcam.models.ToupcamInst;
 import wrapper.toupcam.util.Constants;
+import wrapper.toupcam.util.NativeLibExtractor;
 import wrapper.toupcam.util.ParserUtil;
 import wrapper.toupcam.util.Util;
 
@@ -57,7 +59,14 @@ public class App implements ToupCam  {
 	}
 	
 	public App(){
-		libToupcam = (LibToupcam) getNativeLib();
+		// extracting native libs
+		new NativeLibExtractor().extractNativeLibs();
+		
+		// getting absolute path to native libs
+		String nativeLibAbsPath = new File(Constants.NATIVE_LIB_EXTRACTION_DIR).getAbsolutePath();
+		nativeLibAbsPath = nativeLibAbsPath.replace("./", "") + "/"; 
+		
+		libToupcam = (LibToupcam) getNativeLib(nativeLibAbsPath);
 		Util.keepVMRunning();				// keep JVM from terminating
 	}
 
@@ -68,20 +77,21 @@ public class App implements ToupCam  {
 	 * Machine Architecture: 32-bit or 64-bit
 	 * OS: Linux or Windows
 	 *  
+	 * To load native library JNA requires absolute path.
 	 * @return
 	 */
-	private Object getNativeLib(){
+	private Object getNativeLib(String nativeLibAbsolutePath){
 		Object nativeLib;
 		if(Platform.is64Bit()){
 			if(Platform.isLinux())
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x64_TOUPCAM_SO, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(nativeLibAbsolutePath + Constants.x64_TOUPCAM_SO, LibToupcam.class);
 			else
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x64_TOUPCAM_DLL, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(nativeLibAbsolutePath + Constants.x64_TOUPCAM_DLL, LibToupcam.class);
 		}else {
 			if(Platform.isLinux())
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x86_TOUPCAM_SO, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(nativeLibAbsolutePath + Constants.x86_TOUPCAM_SO, LibToupcam.class);
 			else
-				nativeLib = (LibToupcam) Native.loadLibrary(Constants.NATIVE_LIB_BASE_PATH + Constants.x86_TOUPCAM_DLL, LibToupcam.class);
+				nativeLib = (LibToupcam) Native.loadLibrary(nativeLibAbsolutePath + Constants.x86_TOUPCAM_DLL, LibToupcam.class);
 		}
 		return nativeLib;
 	}

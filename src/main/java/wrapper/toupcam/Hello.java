@@ -13,7 +13,7 @@ public class Hello {
 	private LibHello libHello;
 	
 	public Hello(){
-		this.libHello = (LibHello) Native.loadLibrary(Constants.PATH + "/Hello.so", LibHello.class);
+		this.libHello = (LibHello) Native.loadLibrary(Constants.NATIVE_LIB_EXTRACTION_DIR + "/Hello.so", LibHello.class);
 	}
 	
 	public static void main(String[] args){
