@@ -32,16 +32,25 @@ public class App implements ToupCam  {
 		App app = new App();
 		Native.setProtected(true);
 		List<ToupcamInst> cams = app.getToupcams();
-		System.out.println(cams);
 		app.registerPlugInOrOut();
 		Pointer handler = app.openCam(null);
+		
 		System.out.println("Set Resolution Result: " + app.setResolution(handler, 1));
 	    //System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
-		System.out.println("Start Pull Result: " + app.startPullWithCallBack(handler));
+	
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 		
-		//System.out.println("Start Push Result: " + app.startPushMode(handler));
-		System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
+		app.startPushModeCam(handler);
+	}
+	
+	public void startPullMode(Pointer handler){
+		HResult result = startPullWithCallBack(handler);
+		System.out.println("Start Pull Result: " + result);
+	}
+	
+	public void startPushModeCam(Pointer handler){
+		HResult result = startPushMode(handler);
+		System.out.println("Start Push Result: " + result);
 	}
 	
 	public App(){
@@ -157,7 +166,7 @@ public class App implements ToupCam  {
 
 	public HResult startPullWithCallBack(Pointer handler){
 		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new PTOUPCAM_EVENT_CALLBACK() {
-			@Override public void invoke(long event, Pointer context) {
+			@Override public void invoke(long event) {
 				System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					//System.out.println("Still Image Available!");
@@ -177,9 +186,9 @@ public class App implements ToupCam  {
 	
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
-			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot, Pointer context) {
+			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) {
 				//System.out.println("isSnap: " + isSnapshot + ",Image Recevied: " + imagePointer 
-				//		+ ",Image MetaData Recevied: " + imageMetaData + ",Context: " + context);
+				//		+ ",Image MetaData Recevied: " + imageMetaData);
 				getImageMetaData(imageMetaData);
 				
 				

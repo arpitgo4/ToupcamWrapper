@@ -5,6 +5,6 @@ import com.sun.jna.Pointer;
 
 public interface PTOUPCAM_EVENT_CALLBACK extends Callback{
 
-	void invoke(long event, Pointer context);
+	void invoke(long event);
 
 }
