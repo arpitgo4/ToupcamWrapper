@@ -16,6 +16,7 @@ import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
+import wrapper.toupcam.models.ImageHeader;
 import wrapper.toupcam.models.Model;
 import wrapper.toupcam.models.RawFormat;
 import wrapper.toupcam.models.Resolution;
@@ -41,6 +42,7 @@ public class App implements ToupCam  {
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 		
 		app.startPushModeCam(handler);
+		//app.startPullMode(handler);
 	}
 	
 	public void startPullMode(Pointer handler){
@@ -186,26 +188,13 @@ public class App implements ToupCam  {
 	
 	public HResult startPushMode(Pointer handler){
 		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
-			@Override public void invoke(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) {
-				//System.out.println("isSnap: " + isSnapshot + ",Image Recevied: " + imagePointer 
-				//		+ ",Image MetaData Recevied: " + imageMetaData);
-				getImageMetaData(imageMetaData);
-				
-				
-				
-				//Util.displayBytes(imagePointer);
-				Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
+			@Override public void invoke(Pointer imagePointer, Pointer imageMetaDataPointer, boolean isSnapshot) {
+				ImageHeader header = Util.parseImageHeader(imageMetaDataPointer);
+				System.out.println(header);
+				//Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
 			}
 		}, new Memory(100));
 		return HResult.key(result);
-	}
-	
-	public void getImageMetaData(Pointer metaDataPointer){
-		System.out.println("Width: " + metaDataPointer.getInt(4));
-		System.out.println("Height: " + metaDataPointer.getInt(8));
-		System.out.println("Planes: " + metaDataPointer.getInt(12));
-		System.out.println("Bit Count: " + (metaDataPointer.getInt(14)/8));
-		System.out.println("Image Size: " + metaDataPointer.getInt(16));
 	}
 	
 	public HResult setOptions(Pointer handler, Options option, int value){
