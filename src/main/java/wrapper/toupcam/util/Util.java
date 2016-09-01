@@ -61,22 +61,7 @@ public class Util {
 			System.out.println("Exception thrown during convertion : " + e);
 		}
 	}
-	
-	/**
-	 * public uint     biSize;
-            public int      biWidth;
-            public int      biHeight;
-            public ushort   biPlanes;
-            public ushort   biBitCount;
-            public uint     biCompression;
-            public uint     biSizeImage;
-            public int      biXPelsPerMeter;
-            public int      biYPelsPerMeter;
-            public uint     biClrUsed;
-            public uint     biClrImportant;
 
-	 */
-	
 	/**
 	 * To parse the image header received from push image callback.
 	 * @param imageHeaderPointer
