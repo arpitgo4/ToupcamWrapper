@@ -17,8 +17,7 @@ public class Constants {
     public static final String HELLO_SO = "Hello.so";
     
     
-    public static final String PATH = "/home/arpit/WorkSpaces/Toupcam_java_wrapper_WORKSPACE/"
-    		+ "ToupcamJavaWrapper/src/main/resources/";
+    public static final String PATH = "./src/main/resources/";
 	
 	
 }
