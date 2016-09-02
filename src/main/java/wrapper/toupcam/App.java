@@ -1,6 +1,5 @@
 package wrapper.toupcam;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +34,9 @@ public class App implements ToupCam  {
 	public static void main(String[] args){
 		App app = new App();
 		Native.setProtected(true);
-		List<ToupcamInst> cams = app.getToupcams();
-		app.registerPlugInOrOut();
+		//List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
+		//System.out.println(cams);		
+		//app.registerPlugInOrOut(); 		// not available in windows
 		Pointer handler = app.openCam(null);
 		
 		System.out.println("Set Resolution Result: " + app.setResolution(handler, 1));
@@ -60,6 +60,7 @@ public class App implements ToupCam  {
 	
 	public App(){
 		libToupcam = (LibToupcam) getNativeLib();
+		System.out.println(libToupcam + " loaded!");
 		Util.keepVMRunning();				// keep JVM from terminating
 	}
 
@@ -173,7 +174,7 @@ public class App implements ToupCam  {
 	public HResult startPullWithCallBack(Pointer handler){
 		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new PTOUPCAM_EVENT_CALLBACK() {
 			@Override public void invoke(long event) {
-				System.out.println(Event.key(event) + " event received");
+				//System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					Image image = getStillImage(handler);
 					System.out.println(image);
@@ -181,7 +182,8 @@ public class App implements ToupCam  {
 					
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					Image image = getImage(handler);
-					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
+					System.out.println(image);
+					//Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
 				}
 			}
 		}, 0);
@@ -193,7 +195,7 @@ public class App implements ToupCam  {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaDataPointer, boolean isSnapshot) {
 				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
-				//Util.convertImagePointerToImage(imagePointer, imageMetaData.getInt(4), imageMetaData.getInt(8));  // 1280 * 960
+				//Util.convertImagePointerToImage(imagePointer, header.getWidth(), header.getHeight());  // 1280 * 960
 			}
 		}, Pointer.NULL);
 		return HResult.key(result);
@@ -209,9 +211,9 @@ public class App implements ToupCam  {
 
 	public Image getImage(Pointer handler){
 		//width=1280, height=960
-		Pointer imageBuffer = new Memory(1280 * 960);
+		Pointer imageBuffer = new Memory(1280 * 960 * 4);
 		Pointer width = new Memory(4), height = new Memory(4);
-		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 8, width, height);
+		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 32, width, height);
 		return new Image(imageBuffer, width.getInt(0), height.getInt(0),HResult.key(result));
 	}
 	

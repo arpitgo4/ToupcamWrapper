@@ -16,8 +16,13 @@ repositories {
 }
 
 jar {
-     from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }  
+     from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+     manifest {
+    	attributes 'Main-Class': 'wrapper.toupcam.App'
+	}  
 }
+
+
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
