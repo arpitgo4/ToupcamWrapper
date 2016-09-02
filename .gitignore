@@ -27,3 +27,6 @@ gradle-app.setting
 # Logs
 # ----
 /*.log
+
+# Native Libraries extracted from JAR
+nativeLibs
