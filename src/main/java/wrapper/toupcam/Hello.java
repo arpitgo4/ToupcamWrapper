@@ -1,7 +1,5 @@
 package wrapper.toupcam;
 
-import java.nio.ByteBuffer;
-
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
@@ -21,12 +19,9 @@ public class Hello {
 		Hello h = new Hello();
 		
 		Pointer p = h.libHello.getIntBuffer();
-		byte[] buf = p.getByteArray(0, 4);
-		int i = buf[0];
-		//System.out.println(i);
-		
-		int result = ByteBuffer.wrap(buf).getInt();
-		System.out.println(result);
+		int[] arr = p.getIntArray(0, 3);
+		for(int a : arr)
+			System.out.println(a);
 	}
 	
 	

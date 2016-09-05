@@ -3,6 +3,9 @@ package wrapper.toupcam;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
@@ -30,6 +33,7 @@ public class App implements ToupCam  {
 
 	private LibToupcam libToupcam = null;
 	private Pointer camHandler;
+	private JFrame jFrame;
 
 	public static void main(String[] args){
 		App app = new App();
@@ -59,9 +63,22 @@ public class App implements ToupCam  {
 	}
 	
 	public App(){
+		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) getNativeLib();
 		System.out.println(libToupcam + " loaded!");
 		Util.keepVMRunning();				// keep JVM from terminating
+	}
+	
+	private JFrame createJFrame(){
+		JFrame frame = new JFrame();
+		frame.setSize(1000, 750);
+		frame.setResizable(false);
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("Toupcam Java Wrapper");
+		JLabel imageContainer = new JLabel();
+		frame.add(imageContainer);
+		return frame;
 	}
 
 	/**
@@ -195,7 +212,10 @@ public class App implements ToupCam  {
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaDataPointer, boolean isSnapshot) {
 				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
-				//Util.convertImagePointerToImage(imagePointer, header.getWidth(), header.getHeight());  // 1280 * 960
+				Util.convertImagePointerToImage(imagePointer, 
+						header.getWidth(), header.getHeight());  // 1280 * 960
+				//JLabel label = (JLabel) jFrame.getComponent(0);
+				//label.setIcon(new ImageIcon(image));
 			}
 		}, Pointer.NULL);
 		return HResult.key(result);

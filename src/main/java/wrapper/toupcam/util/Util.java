@@ -7,9 +7,6 @@ import javax.imageio.ImageIO;
 
 import com.sun.jna.Pointer;
 
-import wrapper.toupcam.enumerations.HResult;
-import wrapper.toupcam.models.ImageHeader;
-
 public class Util {
 
 	/**
@@ -23,37 +20,34 @@ public class Util {
 			}
 		}).start();
 	}
-	
+
 	public static void displayBytes(Pointer pointer){
 		for(int i = 0; i < 10; i++)
 			System.out.print(pointer.getByte(i) + ", ");
 		System.out.println();
 	}
-	
-	private static int counter = 0;
+
 	public static void convertImagePointerToImage(Pointer imagePointer, int width, int height){
-		//byte[] imageBytes = imagePointer.getByteArray(0, width * height);
-		/*for(byte b : imageBytes)
-			System.out.print(b + ", ");
-		System.out.println();*/
-		
+		int counter = 0 ;
 		BufferedImage newbImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-		int[] ints = new int[height * width];
-		for (int indexPix = 0; indexPix < height * width; indexPix ++)
+		int[] ints = new int[height * width *  3 ];
+		for (int indexPix = 0; indexPix < height * width *  3 ; )
 		{
-			
-			byte tempByte = imagePointer.getByte(indexPix);
-			if (indexPix<10){
-				System.out.println(tempByte);
-			}
-			//int tempInt = (int) tempByte;
-	        int rgb = (0x88 << 24) | (tempByte << 16) | (tempByte << 8) | tempByte ;
-	        ints[indexPix] = rgb; 
+			int redVal = imagePointer.getByte(indexPix++);
+			int greenVal = imagePointer.getByte(indexPix++);
+			int blueVal = imagePointer.getByte(indexPix++);
+
+			final int rgb = (0xff << 24) + (blueVal<< 16) + (greenVal << 8) + redVal;
+
+			if (indexPix < height *  width *  3){ 
+				ints[counter++] = rgb; }
 		}
-		newbImage.getRGB(0, 0, width, height, ints, 0, width);
-		writeImageToDisk(newbImage);		
+		newbImage.setRGB(0, 0, width, height, ints, 0, width);
+		writeImageToDisk(newbImage);  
+		//return newbImage;
 	}
 
+	private static int counter = 0;
 	private static void writeImageToDisk(BufferedImage image){
 		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
@@ -63,11 +57,11 @@ public class Util {
 			System.out.println("Exception thrown during convertion : " + e);
 		}
 	}
-	
+
 	private static void createImageDir() {
 		File file = new File(Constants.IMAGES_PATH);
 		if(!file.exists())
 			file.mkdirs();
 	}
-	
+
 }
