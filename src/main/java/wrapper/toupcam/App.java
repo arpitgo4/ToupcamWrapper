@@ -40,6 +40,13 @@ public class App implements ToupCam  {
 		Native.setProtected(true);
 		//List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
 		//System.out.println(cams);		
+		
+		int camsConnected = app.countConnectedCams();
+		if(camsConnected == 0){
+			System.out.println("No Toupcams detected");
+			System.exit(-1);
+		}
+		
 		//app.registerPlugInOrOut(); 		// not available in windows
 		Pointer handler = app.openCam(null);
 		
@@ -65,7 +72,6 @@ public class App implements ToupCam  {
 	public App(){
 		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) getNativeLib();
-		System.out.println(libToupcam + " loaded!");
 		Util.keepVMRunning();				// keep JVM from terminating
 	}
 	
