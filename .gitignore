@@ -30,3 +30,6 @@ gradle-app.setting
 
 # Native Libraries extracted from JAR
 nativeLibs
+
+## captures images from camera
+capturedImages
