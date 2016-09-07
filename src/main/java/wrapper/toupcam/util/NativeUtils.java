@@ -20,12 +20,15 @@ public class NativeUtils {
 
 	private static String extractNativeLibs(String libraryName){
 		ClassLoader classLoader = NativeUtils.class.getClassLoader();
-
-		// extracting subdir's name from resources path.  eg. (x64/libToupcam.so) => x64
-		String subDir = libraryName.substring(0, libraryName.indexOf("/"));
+		
+		String subDir = null;
+		if(libraryName.contains("/"))
+			// extracting subdir's name from resources path.  eg. (x64/libToupcam.so) => x64
+			subDir = libraryName.substring(0, libraryName.indexOf("/"));
+		
 		createNativeDir(subDir);
 		String pathToLibrary = Constants.NATIVE_LIB_EXTRACTION_DIR + File.separator + libraryName;
-
+		
 		try(InputStream in = classLoader.getResourceAsStream(libraryName);
 				FileOutputStream outStream = new FileOutputStream(pathToLibrary)){
 
@@ -35,7 +38,8 @@ public class NativeUtils {
 				outStream.write(buf,0,len);
 
 			return new File(pathToLibrary).getAbsolutePath();
-		}catch(Exception e){return null;}
+		}catch(Exception e){
+			System.out.println(e);return null;}
 	}
 
 	public static Object loadLibrary(String libraryName, Class interfaceClass){
@@ -46,8 +50,10 @@ public class NativeUtils {
 	}
 
 	private static void createNativeDir(String subDir) {
-		File native_dir = new File(Constants.NATIVE_LIB_EXTRACTION_DIR + File.separator + subDir);
-		if(!native_dir.exists()) native_dir.mkdirs();
+		if(subDir != null){
+			File native_dir = new File(Constants.NATIVE_LIB_EXTRACTION_DIR + File.separator + subDir);
+			if(!native_dir.exists()) native_dir.mkdirs();
+		}
 	}
 
 }

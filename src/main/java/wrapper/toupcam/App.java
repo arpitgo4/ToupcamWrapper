@@ -220,6 +220,7 @@ public class App implements ToupCam  {
 				System.out.println(header);
 				Util.convertImagePointerToImage(imagePointer, 
 						header.getWidth(), header.getHeight());  // 1280 * 960
+		
 				//JLabel label = (JLabel) jFrame.getComponent(0);
 				//label.setIcon(new ImageIcon(image));
 			}

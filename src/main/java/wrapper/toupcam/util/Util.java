@@ -5,6 +5,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 public class Util {
@@ -27,7 +28,7 @@ public class Util {
 		System.out.println();
 	}
 
-	public static void convertImagePointerToImage(Pointer imagePointer, int width, int height){
+	public static BufferedImage convertImagePointerToImage(Pointer imagePointer, int width, int height){
 		int counter = 0 ;
 		BufferedImage newbImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 		int[] ints = new int[height * width *  3 ];
@@ -43,8 +44,9 @@ public class Util {
 				ints[counter++] = rgb; }
 		}
 		newbImage.setRGB(0, 0, width, height, ints, 0, width);
-		writeImageToDisk(newbImage);  
-		//return newbImage;
+		//writeImageToDisk(newbImage);
+		
+		return newbImage;
 	}
 
 	private static int counter = 0;
