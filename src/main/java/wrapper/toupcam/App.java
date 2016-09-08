@@ -13,6 +13,7 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
 import wrapper.toupcam.callbacks.BufferedImageStreamCallback;
+import wrapper.toupcam.callbacks.ByteImageStreamCallback;
 import wrapper.toupcam.callbacks.EventCallback;
 import wrapper.toupcam.callbacks.ImageStreamCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
@@ -151,14 +152,25 @@ public class App implements Toupcam  {
 				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
 
 					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
-					BufferedImage image = Util.convertImagePointerToImage(
-							imagePointer, header.getWidth(), header.getHeight());
-
-					if(isSnapshot)
-						imageCallback.onReceiveStillImage(image, header);						
-					else imageCallback.onReceivePreviewImage(image, header); 
-				}
-				, Pointer.NULL);
+					
+					if(imageCallback instanceof ByteImageStreamCallback){
+						byte[] imageBytes = Util.convertImagePointerToByteArray(imagePointer, 
+								header.getWidth(), header.getHeight());
+						
+						if(isSnapshot)
+							imageCallback.onReceiveStillImage(imageBytes, header);						
+						else imageCallback.onReceivePreviewImage(imageBytes, header);
+						
+					}else if(imageCallback instanceof BufferedImageStreamCallback){
+						BufferedImage image = Util.convertImagePointerToImage(
+								imagePointer, header.getWidth(), header.getHeight());
+						
+						if(isSnapshot)
+							imageCallback.onReceiveStillImage(image, header);						
+						else imageCallback.onReceivePreviewImage(image, header);
+					}
+					 
+				}, Pointer.NULL);
 		return HResult.key(result);
 	}
 

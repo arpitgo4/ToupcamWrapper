@@ -36,12 +36,30 @@ public class Util {
 		return newbImage;
 	}
 	
+	public static BufferedImage convertIntArrayToImage(int[] imageData, int width, int height){
+		BufferedImage newbImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		newbImage.setRGB(0, 0, width, height, imageData, 0, width);
+		return newbImage;
+	}
+	
 	public static byte[] convertImagePointerToByteArray(Pointer imagePointer, int width, int height){
 		int[] imageData = convertImagePointerToIntArray(imagePointer, width, height);
 		ByteBuffer byteBuffer = ByteBuffer.allocate(imageData.length * 4);
 		IntBuffer intBuffer = byteBuffer.asIntBuffer();
 		intBuffer.put(imageData);
 		return byteBuffer.array();
+		/*int srcLength = imageData.length;
+	    byte[]dst = new byte[srcLength << 2];
+	    
+	    for (int i=0; i<srcLength; i++) {
+	        int x = imageData[i];
+	        int j = i << 2;
+	        dst[j++] = (byte) ((x >>> 0) & 0xff);           
+	        dst[j++] = (byte) ((x >>> 8) & 0xff);
+	        dst[j++] = (byte) ((x >>> 16) & 0xff);
+	        dst[j++] = (byte) ((x >>> 24) & 0xff);
+	    }
+	    return dst;*/
 	}
 	
 	private static int[] convertImagePointerToIntArray(Pointer imagePointer, int width, int height){
