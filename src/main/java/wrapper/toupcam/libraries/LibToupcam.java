@@ -3,7 +3,7 @@ package wrapper.toupcam.libraries;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-import wrapper.toupcam.callbacks.ImageCallback;
+import wrapper.toupcam.callbacks.ImageStreamCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
 import wrapper.toupcam.callbacks.EventCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;

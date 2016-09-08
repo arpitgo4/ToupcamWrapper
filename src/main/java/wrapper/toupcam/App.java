@@ -13,7 +13,7 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
 import wrapper.toupcam.callbacks.EventCallback;
-import wrapper.toupcam.callbacks.ImageCallback;
+import wrapper.toupcam.callbacks.ImageStreamCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
 import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
@@ -58,18 +58,23 @@ public class App implements Toupcam  {
 
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 
-		app.startImageStreaming(new ImageCallback(){
+		app.startImageStreaming(new ImageStreamCallback(){
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
 			}
-			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 
+			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 		});
 
 
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
+	}
+	
+	@Override
+	public HResult getStillImage(int resolutionIndex) {
+		return getSnapShot(getCamHandler(), resolutionIndex);
 	}
 
 	@Override
@@ -78,7 +83,7 @@ public class App implements Toupcam  {
 	}
 
 	@Override
-	public HResult startImageStreaming(ImageCallback imageCallback) {
+	public HResult startImageStreaming(ImageStreamCallback imageCallback) {
 		int result = libToupcam.Toupcam_StartPushMode(getCamHandler(), 
 				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
 
@@ -94,10 +99,10 @@ public class App implements Toupcam  {
 		return HResult.key(result);
 	}
 
-	@Override
+	/*@Override
 	public Toupcam getInstance() {
 		return new App();
-	}
+	}*/
 
 	public void startPullMode(Pointer handler){
 		HResult result = startPullWithCallBack(handler);
@@ -109,7 +114,7 @@ public class App implements Toupcam  {
 		System.out.println("Start Push Result: " + result);
 	}
 
-	private App(){
+	public App(){
 		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) getNativeLib();
 		camHandler = openCam(null);

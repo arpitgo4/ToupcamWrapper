@@ -6,7 +6,7 @@ import com.sun.jna.Callback;
 
 import wrapper.toupcam.models.ImageHeader;
 
-public interface ImageCallback extends Callback {
+public interface ImageStreamCallback extends Callback {
 
 	void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader);
 	

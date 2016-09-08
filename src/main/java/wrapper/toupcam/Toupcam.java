@@ -2,7 +2,7 @@ package wrapper.toupcam;
 
 import java.util.List;
 
-import wrapper.toupcam.callbacks.ImageCallback;
+import wrapper.toupcam.callbacks.ImageStreamCallback;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.models.ToupcamInst;
 
@@ -12,10 +12,12 @@ public interface Toupcam {
 	
 	public List<ToupcamInst> getToupcams();
 	
-	public HResult startImageStreaming(ImageCallback imageCallback);
+	public HResult startImageStreaming(ImageStreamCallback imageCallback);
 	
-	public Toupcam getInstance();
+	//public Toupcam getInstance();
 	
 	public HResult setResolution(int resolutionIndex);
+	
+	public HResult getStillImage(int resolutionIndex);
 	
 }
