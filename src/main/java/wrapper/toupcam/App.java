@@ -1,5 +1,6 @@
 package wrapper.toupcam;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +12,9 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+import wrapper.toupcam.callbacks.EventCallback;
+import wrapper.toupcam.callbacks.ImageCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
-import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
 import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
@@ -40,41 +42,75 @@ public class App implements ToupCam  {
 		Native.setProtected(true);
 		//List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
 		//System.out.println(cams);		
-		
+
 		int camsConnected = app.countConnectedCams();
 		if(camsConnected == 0){
 			System.out.println("No Toupcams detected");
 			System.exit(-1);
 		}
-		
+
 		//app.registerPlugInOrOut(); 		// not available in windows
-		Pointer handler = app.openCam(null);
-		
-		System.out.println("Set Resolution Result: " + app.setResolution(handler, 1));
-	    //System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
-	
+		app.camHandler = app.openCam(null);
+		Util.keepVMRunning();
+
+		System.out.println("Set Resolution Result: " + app.setResolution(app.camHandler, 1));
+		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
+
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
-		
-		app.startPushModeCam(handler);
+
+		app.startImageStreaming(
+				(BufferedImage image, ImageHeader header, boolean isSnapshot) -> {
+					Native.setProtected(true);
+					System.out.println(header);
+					Util.writeImageToDisk(image);
+				});
+
+		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
 	}
-	
+
+	@Override
+	public HResult setResolution(int resolutionIndex) {
+		return HResult.key(libToupcam.Toupcam_put_eSize(getCamHandler(), resolutionIndex));
+	}
+
+	@Override
+	public HResult startImageStreaming(ImageCallback imageCallback) {
+		int result = libToupcam.Toupcam_StartPushMode(getCamHandler(), 
+				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
+
+					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
+					BufferedImage image = Util.convertImagePointerToImage(
+							imagePointer, header.getWidth(), header.getHeight());
+
+					imageCallback.onReceive(image, header, isSnapshot);
+				}
+				, Pointer.NULL);
+		return HResult.key(result);
+	}
+
+	@Override
+	public ToupCam getInstance() {
+		return null;
+	}
+
 	public void startPullMode(Pointer handler){
 		HResult result = startPullWithCallBack(handler);
 		System.out.println("Start Pull Result: " + result);
 	}
-	
+
 	public void startPushModeCam(Pointer handler){
 		HResult result = startPushMode(handler);
 		System.out.println("Start Push Result: " + result);
 	}
-	
+
 	public App(){
 		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) getNativeLib();
-		Util.keepVMRunning();				// keep JVM from terminating
+		camHandler = openCam(null);
+		//	Util.keepVMRunning();				// keep JVM from terminating, not needed inside tomcat.
 	}
-	
+
 	private JFrame createJFrame(){
 		JFrame frame = new JFrame();
 		frame.setSize(1000, 750);
@@ -112,7 +148,7 @@ public class App implements ToupCam  {
 		}
 		return nativeLib;
 	}
-	
+
 	public void registerPlugInOrOut(){
 		libToupcam.Toupcam_HotPlug(new PTOUPCAM_HOTPLUG_CALLBACK() {
 			@Override public void invoke() {
@@ -120,13 +156,13 @@ public class App implements ToupCam  {
 			}
 		});
 	}
-	
+
 	public RawFormat getRawFormat(Pointer handler){
 		Pointer nFourCC = new Memory(4), bitdepth = new Memory(4);
 		int result = libToupcam.Toupcam_get_RawFormat(handler, nFourCC, bitdepth);
 		return new RawFormat(nFourCC.getInt(0), bitdepth.getInt(0), HResult.key(result));
 	}
-	
+
 	public HResult setResolution(Pointer handler, int resolutionIndex){
 		return HResult.key(libToupcam.Toupcam_put_eSize(handler, resolutionIndex));
 	}
@@ -195,14 +231,14 @@ public class App implements ToupCam  {
 	}
 
 	public HResult startPullWithCallBack(Pointer handler){
-		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new PTOUPCAM_EVENT_CALLBACK() {
+		int result = libToupcam.Toupcam_StartPullModeWithCallback(handler, new EventCallback() {
 			@Override public void invoke(long event) {
 				//System.out.println(Event.key(event) + " event received");
 				if(Event.key(event) == Event.EVENT_STILLIMAGE){
 					Image image = getStillImage(handler);
 					System.out.println(image);
 					Util.convertImagePointerToImage(image.getImagePointer(), image.getWidth(), image.getHeight());
-					
+
 				}else if(Event.key(event) == Event.EVENT_IMAGE){
 					Image image = getImage(handler);
 					System.out.println(image);
@@ -212,22 +248,22 @@ public class App implements ToupCam  {
 		}, 0);
 		return HResult.key(result);
 	}
-	
+
 	public HResult startPushMode(Pointer handler){
-		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK() {
+		int result = libToupcam.Toupcam_StartPushMode(handler, new PTOUPCAM_DATA_CALLBACK(){
 			@Override public void invoke(Pointer imagePointer, Pointer imageMetaDataPointer, boolean isSnapshot) {
 				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
 				Util.convertImagePointerToImage(imagePointer, 
 						header.getWidth(), header.getHeight());  // 1280 * 960
-		
+
 				//JLabel label = (JLabel) jFrame.getComponent(0);
 				//label.setIcon(new ImageIcon(image));
 			}
 		}, Pointer.NULL);
 		return HResult.key(result);
 	}
-	
+
 	public HResult setOptions(Pointer handler, Options option, int value){
 		return HResult.key(libToupcam.Toupcam_put_Option(handler, option.getValue(), value));
 	}
@@ -243,7 +279,7 @@ public class App implements ToupCam  {
 		int result = libToupcam.Toupcam_PullImage(handler, imageBuffer, 32, width, height);
 		return new Image(imageBuffer, width.getInt(0), height.getInt(0),HResult.key(result));
 	}
-	
+
 	public Image getStillImage(Pointer handler){
 		//width=2592, height=1944	
 		Pointer imageBuffer = new Memory(2592 * 1944);

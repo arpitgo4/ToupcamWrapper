@@ -44,13 +44,12 @@ public class Util {
 				ints[counter++] = rgb; }
 		}
 		newbImage.setRGB(0, 0, width, height, ints, 0, width);
-		//writeImageToDisk(newbImage);
 		
 		return newbImage;
 	}
 
 	private static int counter = 0;
-	private static void writeImageToDisk(BufferedImage image){
+	public static void writeImageToDisk(BufferedImage image){
 		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
 			ImageIO.write(image, "png", new File(

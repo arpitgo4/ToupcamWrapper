@@ -3,8 +3,9 @@ package wrapper.toupcam.libraries;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import wrapper.toupcam.callbacks.ImageCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
-import wrapper.toupcam.callbacks.PTOUPCAM_EVENT_CALLBACK;
+import wrapper.toupcam.callbacks.EventCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 
 public interface LibToupcam extends Library {
@@ -13,7 +14,7 @@ public interface LibToupcam extends Library {
 	
 	Pointer Toupcam_Open(String id);
 	
-	int Toupcam_StartPullModeWithCallback(Pointer handler, PTOUPCAM_EVENT_CALLBACK callback, int other);
+	int Toupcam_StartPullModeWithCallback(Pointer handler, EventCallback callback, int other);
 	
 	int Toupcam_PullImage(Pointer handler, Pointer pImageData, int bits, Pointer pnWidth, Pointer pnHeight);
 	

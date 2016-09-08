@@ -9,6 +9,10 @@
  
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+group = 'org.wrapper.toupcam'
+version = '1.0'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -22,6 +26,29 @@ jar {
 	}  
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+// to publish artifact as maven artifact in maven repo.
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 
 // In this section you declare the dependencies for your production and test code
