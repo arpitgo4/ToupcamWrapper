@@ -31,7 +31,7 @@ import wrapper.toupcam.util.NativeUtils;
 import wrapper.toupcam.util.ParserUtil;
 import wrapper.toupcam.util.Util;
 
-public class App implements ToupCam  {
+public class App implements Toupcam  {
 
 	private LibToupcam libToupcam = null;
 	private Pointer camHandler;
@@ -85,18 +85,18 @@ public class App implements ToupCam  {
 					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
 					BufferedImage image = Util.convertImagePointerToImage(
 							imagePointer, header.getWidth(), header.getHeight());
+					
 					if(isSnapshot)
 						imageCallback.onReceiveStillImage(image, header);						
 					else imageCallback.onReceivePreviewImage(image, header); 
-					
 				}
 				, Pointer.NULL);
 		return HResult.key(result);
 	}
 
 	@Override
-	public ToupCam getInstance() {
-		return null;
+	public Toupcam getInstance() {
+		return new App();
 	}
 
 	public void startPullMode(Pointer handler){
@@ -109,7 +109,7 @@ public class App implements ToupCam  {
 		System.out.println("Start Push Result: " + result);
 	}
 
-	public App(){
+	private App(){
 		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) getNativeLib();
 		camHandler = openCam(null);

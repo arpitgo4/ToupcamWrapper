@@ -6,7 +6,7 @@ import wrapper.toupcam.callbacks.ImageCallback;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.models.ToupcamInst;
 
-public interface ToupCam {
+public interface Toupcam {
 	
 	public int countConnectedCams();
 	
@@ -14,7 +14,7 @@ public interface ToupCam {
 	
 	public HResult startImageStreaming(ImageCallback imageCallback);
 	
-	public ToupCam getInstance();
+	public Toupcam getInstance();
 	
 	public HResult setResolution(int resolutionIndex);
 	
