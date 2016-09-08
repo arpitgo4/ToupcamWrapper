@@ -74,7 +74,12 @@ public class App implements Toupcam  {
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 		};
 		
-		app.startStreaming(imageCallback);
+	//	app.startStreaming(imageCallback);
+	//	app.stopStreaming();
+		System.out.println("Trigger images");
+		app.getTriggerImages(10);
+		
+		
 		
 		/*try{
 			Thread.sleep(4000);
@@ -86,17 +91,22 @@ public class App implements Toupcam  {
 		}catch(Exception e){System.out.println(e);}*/
 
 		
-		try{
+		/*try{
 			Thread.sleep(4000);
 			app.stopStreaming();
 			System.out.println("----- Image Streaming Stopped -----");
 			Thread.sleep(2000);
 			app.startStreaming(imageCallback);
 			System.out.println("----- Image Streaming Restarted -----");
-		}catch(Exception e){System.out.println(e);}
+		}catch(Exception e){System.out.println(e);}*/
 
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
+	}
+	
+	@Override
+	public HResult getTriggerImages(int numberOfImages) {
+		return HResult.key(libToupcam.Toupcam_Trigger(camHandler, numberOfImages));
 	}
 
 	@Override

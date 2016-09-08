@@ -31,4 +31,6 @@ public interface Toupcam {
 	
 	public boolean isStreaming();
 	
+	public HResult getTriggerImages(int numberOfImages);
+	
 }
