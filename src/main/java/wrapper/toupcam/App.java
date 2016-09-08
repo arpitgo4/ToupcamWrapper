@@ -12,6 +12,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+import wrapper.toupcam.callbacks.BufferedImageStreamCallback;
 import wrapper.toupcam.callbacks.EventCallback;
 import wrapper.toupcam.callbacks.ImageStreamCallback;
 import wrapper.toupcam.callbacks.PTOUPCAM_DATA_CALLBACK;
@@ -63,7 +64,7 @@ public class App implements Toupcam  {
 		System.out.println("Set Resolution Result: " + app.setResolution(app.camHandler, 2));
 		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 
-		ImageStreamCallback imageCallback = new ImageStreamCallback(){
+		ImageStreamCallback imageCallback = new BufferedImageStreamCallback(){
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
