@@ -19,6 +19,7 @@ import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
+import wrapper.toupcam.exceptions.StreamingException;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
 import wrapper.toupcam.models.ImageHeader;
@@ -38,6 +39,10 @@ public class App implements Toupcam  {
 	private JFrame jFrame;
 
 	private boolean isStreaming = false;
+	
+	// cache variable to store callback for image, for use case when streaming
+	// has to be stopped and restarted.
+	private ImageStreamCallback imageCallback = null;	 
 
 	public static void main(String[] args){
 		App app = new App();
@@ -55,45 +60,70 @@ public class App implements Toupcam  {
 		app.camHandler = app.openCam(null);
 		Util.keepVMRunning();
 
-		System.out.println("Set Resolution Result: " + app.setResolution(app.camHandler, 1));
+		System.out.println("Set Resolution Result: " + app.setResolution(app.camHandler, 2));
 		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 
-		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
-
-		app.startImageStreaming(new ImageStreamCallback(){
+		ImageStreamCallback imageCallback = new ImageStreamCallback(){
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
 			}
 
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
-		});
+		};
+		
+		app.startStreaming(imageCallback);
+		
+		/*try{
+			Thread.sleep(4000);
+			app.pauseStreaming();
+			System.out.println("----- Image Streaming Paused -----");
+			Thread.sleep(2000);
+			System.out.println("----- Resuming Image Stream -----");
+			app.resumeStreaming();
+		}catch(Exception e){System.out.println(e);}*/
 
+		
+		try{
+			Thread.sleep(4000);
+			app.stopStreaming();
+			System.out.println("----- Image Streaming Stopped -----");
+			Thread.sleep(2000);
+			app.startStreaming(imageCallback);
+			System.out.println("----- Image Streaming Restarted -----");
+		}catch(Exception e){System.out.println(e);}
 
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
 	}
 
 	@Override
-	public HResult pauseStreaming() {
-		if(isStreaming){
-			HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
-			if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
-				isStreaming = false;
+	public boolean isStreaming() {
+		return isStreaming;
+	}
+	
+	@Override
+	public HResult restartStreaming() throws StreamingException {
+		if(this.imageCallback == null) throw new StreamingException(Constants.RESTART_STREAM_EXCEP_MSG);
+		return startStreaming(this.imageCallback);
+	}
 
-			return result;
-		}else return HResult.S_OK;
+	@Override
+	public HResult pauseStreaming() {
+		HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
+		if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
+			isStreaming = false;
+
+		return result;
 	}
 
 	@Override
 	public HResult resumeStreaming() {
-		if(!isStreaming){
-			HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
-			if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
-				isStreaming = true;
+		HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
+		if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
+			isStreaming = true;
 
-			return result;
-		}else return HResult.S_OK;
+		return result;
 	}
 
 	@Override
@@ -112,8 +142,10 @@ public class App implements Toupcam  {
 	}
 
 	@Override
-	public HResult startImageStreaming(ImageStreamCallback imageCallback) {
+	public HResult startStreaming(ImageStreamCallback imageCallback) {
 		isStreaming = true;
+		this.imageCallback = imageCallback;		// caching imageCallback for later use, in case of start/restart
+		
 		int result = libToupcam.Toupcam_StartPushMode(getCamHandler(), 
 				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
 

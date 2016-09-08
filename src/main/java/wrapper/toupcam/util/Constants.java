@@ -25,6 +25,13 @@ public class Constants {
     
     public static final String JAR_FILE_NAME = "ToupcamJavaWrapper.jar";
     public static final String NATIVE_LIB_EXTRACTION_DIR = PROJECT_BASE_PATH + "nativeLibs/";
+    
+    
+    /**
+     * Exception Messages
+     */
+    
+    public static final String RESTART_STREAM_EXCEP_MSG = "cannot restart streaming without first starting it";
 	
 	
 }
