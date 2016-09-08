@@ -2,10 +2,11 @@ package wrapper.toupcam.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
 
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 public class Util {
@@ -29,9 +30,23 @@ public class Util {
 	}
 
 	public static BufferedImage convertImagePointerToImage(Pointer imagePointer, int width, int height){
-		int counter = 0 ;
 		BufferedImage newbImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-		int[] ints = new int[height * width *  3 ];
+		int[] ints = convertImagePointerToIntArray(imagePointer, width, height);
+		newbImage.setRGB(0, 0, width, height, ints, 0, width);
+		return newbImage;
+	}
+	
+	public static byte[] convertImagePointerToByteArray(Pointer imagePointer, int width, int height){
+		int[] imageData = convertImagePointerToIntArray(imagePointer, width, height);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(imageData.length * 4);
+		IntBuffer intBuffer = byteBuffer.asIntBuffer();
+		intBuffer.put(imageData);
+		return byteBuffer.array();
+	}
+	
+	private static int[] convertImagePointerToIntArray(Pointer imagePointer, int width, int height){
+		int counter = 0 ;
+		int[] ints = new int[height * width *  3];
 		for (int indexPix = 0; indexPix < height * width *  3 ; )
 		{
 			int redVal = imagePointer.getByte(indexPix++);
@@ -43,17 +58,15 @@ public class Util {
 			if (indexPix < height *  width *  3){ 
 				ints[counter++] = rgb; }
 		}
-		newbImage.setRGB(0, 0, width, height, ints, 0, width);
-		
-		return newbImage;
+		return ints;
 	}
 
-	private static int counter = 0;
+	private static int imageCounter = 0;
 	public static void writeImageToDisk(BufferedImage image){
 		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
 			ImageIO.write(image, "png", new File(
-					Constants.IMAGES_PATH + "/image" + counter++ + ".png"));
+					Constants.IMAGES_PATH + "/image" + imageCounter++ + ".png"));
 		} catch (Exception e) {
 			System.out.println("Exception thrown during convertion : " + e);
 		}

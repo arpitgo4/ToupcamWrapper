@@ -31,7 +31,7 @@ public class Constants {
      * Exception Messages
      */
     
-    public static final String RESTART_STREAM_EXCEP_MSG = "cannot restart streaming without first starting it";
+    public static final String RESTART_STREAM_EXCEP_MSG = "no image listener callback cached";
 	
 	
 }
