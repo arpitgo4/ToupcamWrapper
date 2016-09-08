@@ -20,4 +20,10 @@ public interface Toupcam {
 	
 	public HResult getStillImage(int resolutionIndex);
 	
+	public HResult pauseStreaming();
+	
+	public HResult resumeStreaming();
+	
+	public HResult stopStreaming();
+	
 }

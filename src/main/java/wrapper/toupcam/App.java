@@ -37,6 +37,8 @@ public class App implements Toupcam  {
 	private Pointer camHandler;
 	private JFrame jFrame;
 
+	private boolean isStreaming = false;
+
 	public static void main(String[] args){
 		App app = new App();
 		Native.setProtected(true);
@@ -71,7 +73,34 @@ public class App implements Toupcam  {
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
 	}
-	
+
+	@Override
+	public HResult pauseStreaming() {
+		if(isStreaming){
+			HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
+			if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
+				isStreaming = false;
+
+			return result;
+		}else return HResult.S_OK;
+	}
+
+	@Override
+	public HResult resumeStreaming() {
+		if(!isStreaming){
+			HResult result = HResult.key(libToupcam.Toupcam_Pause(getCamHandler()));
+			if(result.equals(HResult.S_OK) || result.equals(HResult.S_FALSE))
+				isStreaming = true;
+
+			return result;
+		}else return HResult.S_OK;
+	}
+
+	@Override
+	public HResult stopStreaming() {
+		return HResult.key(libToupcam.Toupcam_Stop(getCamHandler()));
+	}
+
 	@Override
 	public HResult getStillImage(int resolutionIndex) {
 		return getSnapShot(getCamHandler(), resolutionIndex);
@@ -84,13 +113,14 @@ public class App implements Toupcam  {
 
 	@Override
 	public HResult startImageStreaming(ImageStreamCallback imageCallback) {
+		isStreaming = true;
 		int result = libToupcam.Toupcam_StartPushMode(getCamHandler(), 
 				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
 
 					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
 					BufferedImage image = Util.convertImagePointerToImage(
 							imagePointer, header.getWidth(), header.getHeight());
-					
+
 					if(isSnapshot)
 						imageCallback.onReceiveStillImage(image, header);						
 					else imageCallback.onReceivePreviewImage(image, header); 
