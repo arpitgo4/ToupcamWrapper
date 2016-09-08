@@ -8,6 +8,8 @@ import wrapper.toupcam.models.ImageHeader;
 
 public interface ImageCallback extends Callback {
 
-	void onReceive(BufferedImage image, ImageHeader header, boolean isSnapshot);
+	void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader);
+	
+	void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader);
 	
 }

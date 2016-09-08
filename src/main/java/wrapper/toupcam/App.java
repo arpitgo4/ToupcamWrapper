@@ -58,12 +58,15 @@ public class App implements ToupCam  {
 
 		//System.out.println("Get SnapShot Result: " + app.getSnapShot(handler, 0));
 
-		app.startImageStreaming(
-				(BufferedImage image, ImageHeader header, boolean isSnapshot) -> {
-					Native.setProtected(true);
-					System.out.println(header);
-					Util.writeImageToDisk(image);
-				});
+		app.startImageStreaming(new ImageCallback(){
+			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
+				Native.setProtected(true);
+				System.out.println(imageHeader);
+			}
+			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
+
+		});
+
 
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
@@ -82,8 +85,10 @@ public class App implements ToupCam  {
 					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
 					BufferedImage image = Util.convertImagePointerToImage(
 							imagePointer, header.getWidth(), header.getHeight());
-
-					imageCallback.onReceive(image, header, isSnapshot);
+					if(isSnapshot)
+						imageCallback.onReceiveStillImage(image, header);						
+					else imageCallback.onReceivePreviewImage(image, header); 
+					
 				}
 				, Pointer.NULL);
 		return HResult.key(result);
