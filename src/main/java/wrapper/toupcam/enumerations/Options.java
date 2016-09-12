@@ -13,7 +13,7 @@ public enum Options
     OPTION_COOLER         (0x08),    /* 0 = turn off cooler, 1 = turn on cooler */
     OPTION_LINEAR         (0x09),    /* 0 = turn off tone linear, 1 = turn on tone linear */
     OPTION_CURVE          (0x0a),    /* 0 = turn off tone curve, 1 = turn on tone curve */
-    OPTION_TRIGGER        (0x0b),    /* 0 = continuous mode, 1 = trigger mode, default value = 0 */
+    OPTION_TRIGGER        (0x0b),    /* 0 = video mode, 1 = software or simulated trigger mode, 2 = external trigger mode, default value =  0 */
     OPTION_RGB48          (0x0c);     /* enable RGB48 format when bitdepth > 8 */
     
     private int value;
