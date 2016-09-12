@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
+
+import wrapper.toupcam.libraries.LibToupcam;
 
 /**
  * To extract native libraries packed in this JAR 
@@ -54,6 +57,32 @@ public class NativeUtils {
 			File native_dir = new File(Constants.NATIVE_LIB_EXTRACTION_DIR + File.separator + subDir);
 			if(!native_dir.exists()) native_dir.mkdirs();
 		}
+	}
+	
+	/**
+	 * Checks for the machine's architecture and OS, load 
+	 * and returns machine specific native library.
+	 * 
+	 * Machine Architecture: 32-bit or 64-bit
+	 * OS: Linux or Windows
+	 *  
+	 * Note: To load native library JNA requires absolute path.
+	 * @return
+	 */
+	public static Object getNativeLib(){
+		Object nativeLib;
+		if(Platform.is64Bit()){
+			if(Platform.isLinux())
+				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_SO, LibToupcam.class);
+			else
+				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_DLL, LibToupcam.class);
+		}else {
+			if(Platform.isLinux())
+				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_SO, LibToupcam.class);
+			else
+				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_DLL, LibToupcam.class);
+		}
+		return nativeLib;
 	}
 
 }

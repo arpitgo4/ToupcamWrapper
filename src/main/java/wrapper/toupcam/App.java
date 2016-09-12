@@ -79,27 +79,6 @@ public class App implements Toupcam  {
 		System.out.println("Trigger images");
 		app.getTriggerImages(10);
 		
-		
-		
-		/*try{
-			Thread.sleep(4000);
-			app.pauseStreaming();
-			System.out.println("----- Image Streaming Paused -----");
-			Thread.sleep(2000);
-			System.out.println("----- Resuming Image Stream -----");
-			app.resumeStreaming();
-		}catch(Exception e){System.out.println(e);}*/
-
-		
-		/*try{
-			Thread.sleep(4000);
-			app.stopStreaming();
-			System.out.println("----- Image Streaming Stopped -----");
-			Thread.sleep(2000);
-			app.startStreaming(imageCallback);
-			System.out.println("----- Image Streaming Restarted -----");
-		}catch(Exception e){System.out.println(e);}*/
-
 		//app.startPushModeCam(app.camHandler);
 		//app.startPullMode(handler);
 	}
@@ -201,7 +180,7 @@ public class App implements Toupcam  {
 
 	public App(){
 		//jFrame = createJFrame();
-		libToupcam = (LibToupcam) getNativeLib();
+		libToupcam = (LibToupcam) NativeUtils.getNativeLib();
 		camHandler = openCam(null);
 		//	Util.keepVMRunning();				// keep JVM from terminating, not needed inside tomcat.
 	}
@@ -216,32 +195,6 @@ public class App implements Toupcam  {
 		JLabel imageContainer = new JLabel();
 		frame.add(imageContainer);
 		return frame;
-	}
-
-	/**
-	 * Checks for the machine's architecture and OS, load 
-	 * and returns machine specific native library.
-	 * 
-	 * Machine Architecture: 32-bit or 64-bit
-	 * OS: Linux or Windows
-	 *  
-	 * Note: To load native library JNA requires absolute path.
-	 * @return
-	 */
-	private Object getNativeLib(){
-		Object nativeLib;
-		if(Platform.is64Bit()){
-			if(Platform.isLinux())
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_SO, LibToupcam.class);
-			else
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_DLL, LibToupcam.class);
-		}else {
-			if(Platform.isLinux())
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_SO, LibToupcam.class);
-			else
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_DLL, LibToupcam.class);
-		}
-		return nativeLib;
 	}
 
 	public void registerPlugInOrOut(){
@@ -350,7 +303,7 @@ public class App implements Toupcam  {
 				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
 				Util.convertImagePointerToImage(imagePointer, 
-						header.getWidth(), header.getHeight());  // 1280 * 960
+						header.getWidth(), header.getHeight());  
 
 				//JLabel label = (JLabel) jFrame.getComponent(0);
 				//label.setIcon(new ImageIcon(image));
