@@ -21,6 +21,7 @@ import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
+import wrapper.toupcam.enumerations.TriggerMode;
 import wrapper.toupcam.exceptions.StreamingException;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
@@ -76,11 +77,38 @@ public class App implements Toupcam  {
 		
 	//	app.startStreaming(imageCallback);
 	//	app.stopStreaming();
-		System.out.println("Trigger images");
-		app.getTriggerImages(10);
+	//	System.out.println("Trigger images");
+	//	app.getTriggerImages(10);
 		
 		//app.startPushModeCam(app.camHandler);
+		app.startStreaming(imageCallback);
 		//app.startPullMode(handler);
+		
+		System.out.println("Trigger Mode : " + app.getOptions(Options.OPTION_TRIGGER));
+		System.out.println("Set Trigger Mode Result: " + app.setTriggerMode(1));
+	//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
+		
+		try{
+			Thread.sleep(5000);
+			System.out.println("Activating Video Mode: ");
+			app.setTriggerMode(0);
+		}catch(Exception e){}
+		
+		//app.stopStreaming();
+	}
+	
+	public HResult setTriggerMode(int mode){
+		return setOptions(Options.OPTION_TRIGGER, mode);
+	}
+	
+	private HResult setOptions(Options option, int value){
+		return HResult.key(libToupcam.Toupcam_put_Option(getCamHandler(), option.getValue(), value));
+	}
+	
+	private int getOptions(Options option){
+		Pointer pointer = new Memory(4);
+		libToupcam.Toupcam_get_Option(getCamHandler(), option.getValue(), pointer);
+		return pointer.getInt(0);
 	}
 	
 	@Override

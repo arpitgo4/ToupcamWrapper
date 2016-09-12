@@ -45,4 +45,7 @@ public interface LibToupcam extends Library {
 	 * @return
 	 */
 	int Toupcam_put_Option(Pointer handler, int iOption, int iValue);
+	
+	int Toupcam_get_Option(Pointer handler, int iOption, Pointer iValue);
+	
 }

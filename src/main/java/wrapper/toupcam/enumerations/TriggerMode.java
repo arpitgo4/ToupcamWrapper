@@ -12,6 +12,10 @@ public enum TriggerMode {
 		this.value = value;
 	}
 	
+	public int getValue(){
+		return value;
+	}
+	
 	public static TriggerMode key(long mode){
 		for(TriggerMode v : values()){
 			if(v.value == mode)
