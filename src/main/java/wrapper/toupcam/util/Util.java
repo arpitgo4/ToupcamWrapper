@@ -1,11 +1,23 @@
 package wrapper.toupcam.util;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Iterator;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 import com.sun.jna.Pointer;
 
@@ -48,18 +60,6 @@ public class Util {
 		IntBuffer intBuffer = byteBuffer.asIntBuffer();
 		intBuffer.put(imageData);
 		return byteBuffer.array();
-		/*int srcLength = imageData.length;
-	    byte[]dst = new byte[srcLength << 2];
-	    
-	    for (int i=0; i<srcLength; i++) {
-	        int x = imageData[i];
-	        int j = i << 2;
-	        dst[j++] = (byte) ((x >>> 0) & 0xff);           
-	        dst[j++] = (byte) ((x >>> 8) & 0xff);
-	        dst[j++] = (byte) ((x >>> 16) & 0xff);
-	        dst[j++] = (byte) ((x >>> 24) & 0xff);
-	    }
-	    return dst;*/
 	}
 	
 	private static int[] convertImagePointerToIntArray(Pointer imagePointer, int width, int height){
@@ -77,6 +77,70 @@ public class Util {
 				ints[counter++] = rgb; }
 		}
 		return ints;
+	}
+	
+	public static void saveJPG(BufferedImage image) throws IOException {
+
+		BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
+		Graphics2D graphics = imageRGB.createGraphics();
+		graphics.drawImage(image, 0, 0, null);
+		graphics.dispose();
+
+		File compressedImageFile = new File(Constants.IMAGES_PATH + "/image" + imageCounter++ + "compress.jpg");
+		OutputStream os = new FileOutputStream(compressedImageFile);
+
+		Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+		ImageWriter writer = (ImageWriter) writers.next();
+
+		ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+		writer.setOutput(ios);
+
+		ImageWriteParam param = writer.getDefaultWriteParam();
+
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT); 
+
+	//	param.setCompressionQuality(0.5f);
+		writer.write(null, new IIOImage(imageRGB, null, null), param);
+
+		os.close();
+		ios.close();
+		writer.dispose();
+	}
+	
+	public static byte[] compressBufferedImageByteArray(BufferedImage image) {
+		BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
+		Graphics2D graphics = imageRGB.createGraphics();
+		graphics.drawImage(image, 0, 0, null);
+		graphics.dispose();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+		ImageWriter writer = (ImageWriter) writers.next();
+		
+		ImageOutputStream imageOutputStream = null;
+		try {
+			imageOutputStream = ImageIO.createImageOutputStream(outputStream);
+		} catch (IOException e1) {e1.printStackTrace();}
+		writer.setOutput(imageOutputStream);
+		ImageWriteParam param = writer.getDefaultWriteParam();
+
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT); 
+
+		param.setCompressionQuality(0.5f);
+		try {
+			writer.write(null, new IIOImage(imageRGB, null, null), param);
+		} catch (IOException e) {e.printStackTrace();}
+		
+		writer.dispose();
+		return outputStream.toByteArray();
+	}
+	
+	public static BufferedImage compressBufferedImage(BufferedImage image){
+		byte[] imageBytes = compressBufferedImageByteArray(image);
+		InputStream imageBytesInputStream = new ByteArrayInputStream(imageBytes);
+		try {
+			return ImageIO.read(imageBytesInputStream);
+		} catch (IOException e) {e.printStackTrace();}
+		return null;
 	}
 
 	private static int imageCounter = 0;

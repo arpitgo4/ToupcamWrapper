@@ -1,6 +1,7 @@
 package wrapper.toupcam;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,14 @@ public class App implements Toupcam  {
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
+			//	byte[] imageBytes = Util.compressBufferedImageByteArray(image);
+			//	Util.writeImageToDisk(Util.compressBufferedImage(image));
+				try {
+					Util.saveJPG(Util.compressBufferedImage(image));
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+				}
 			}
 
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
@@ -89,7 +98,7 @@ public class App implements Toupcam  {
 	//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
 		
 		try{
-			Thread.sleep(5000);
+		//	Thread.sleep(5000);
 			System.out.println("Activating Video Mode: ");
 			app.setTriggerMode(0);
 		}catch(Exception e){}
