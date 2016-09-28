@@ -43,16 +43,16 @@ public class App implements Toupcam  {
 	private JFrame jFrame;
 
 	private boolean isStreaming = false;
-	
+
 	// cache variable to store callback for image, for use case when streaming
 	// has to be stopped and restarted.
-	private ImageStreamCallback imageCallback = null;	 
+	private ImageStreamCallback imageCallback = null;
 
 	public static void main(String[] args){
 		App app = new App();
 		Native.setProtected(true);
-		//List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
-		//System.out.println(cams);		
+		List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
+		System.out.println(cams);		
 
 		int camsConnected = app.countConnectedCams();
 		if(camsConnected == 0){
@@ -61,7 +61,7 @@ public class App implements Toupcam  {
 		}
 
 		//app.registerPlugInOrOut(); 		// not available in windows
-		app.camHandler = app.openCam(null);
+	//	app.camHandler = app.openCam(null);
 		Util.keepVMRunning();
 
 		System.out.println("Set Resolution Result: " + app.setResolution(app.camHandler, 2));
@@ -71,55 +71,62 @@ public class App implements Toupcam  {
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
-			//	byte[] imageBytes = Util.compressBufferedImageByteArray(image);
-			//	Util.writeImageToDisk(Util.compressBufferedImage(image));
-				try {
+				//	byte[] imageBytes = Util.compressBufferedImageByteArray(image);
+				//	Util.writeImageToDisk(Util.compressBufferedImage(image));
+				/*try {
 					Util.saveJPG(Util.compressBufferedImage(image));
 				} catch (IOException e) {
-					
+
 					e.printStackTrace();
-				}
+				}*/
 			}
 
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 		};
-		
-	//	app.startStreaming(imageCallback);
-	//	app.stopStreaming();
-	//	System.out.println("Trigger images");
-	//	app.getTriggerImages(10);
-		
+
+		//	app.startStreaming(imageCallback);
+		//	app.stopStreaming();
+		//	System.out.println("Trigger images");
+		//	app.getTriggerImages(10);
+
 		//app.startPushModeCam(app.camHandler);
 		app.startStreaming(imageCallback);
 		//app.startPullMode(handler);
+
+	//	System.out.println("Trigger Mode : " + app.getOptions(Options.OPTION_TRIGGER));
+	//	System.out.println("Set Trigger Mode Result: " + app.setTriggerMode(1));
+		//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
+
+		/*try{
+			for(int i = 0; i<100; i++){
+				//	Thread.sleep(5000);
+				System.out.println("Activating Video Mode: ");
+				app.setTriggerMode(0);
+				Thread.sleep(500);
+				System.out.println("Activating Trigger Mode: ");
+				app.setTriggerMode(1);
+			}
+		}catch(Exception e){}*/
 		
-		System.out.println("Trigger Mode : " + app.getOptions(Options.OPTION_TRIGGER));
-		System.out.println("Set Trigger Mode Result: " + app.setTriggerMode(1));
-	//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
-		
-		try{
-		//	Thread.sleep(5000);
-			System.out.println("Activating Video Mode: ");
-			app.setTriggerMode(0);
-		}catch(Exception e){}
-		
+	//	app.setTriggerMode(0);
+
 		//app.stopStreaming();
 	}
-	
+
 	public HResult setTriggerMode(int mode){
 		return setOptions(Options.OPTION_TRIGGER, mode);
 	}
-	
+
 	private HResult setOptions(Options option, int value){
 		return HResult.key(libToupcam.Toupcam_put_Option(getCamHandler(), option.getValue(), value));
 	}
-	
+
 	private int getOptions(Options option){
 		Pointer pointer = new Memory(4);
 		libToupcam.Toupcam_get_Option(getCamHandler(), option.getValue(), pointer);
 		return pointer.getInt(0);
 	}
-	
+
 	@Override
 	public HResult getTriggerImages(int numberOfImages) {
 		return HResult.key(libToupcam.Toupcam_Trigger(camHandler, numberOfImages));
@@ -129,7 +136,7 @@ public class App implements Toupcam  {
 	public boolean isStreaming() {
 		return isStreaming;
 	}
-	
+
 	@Override
 	public HResult restartStreaming() throws StreamingException {
 		if(this.imageCallback == null) throw new StreamingException(Constants.RESTART_STREAM_EXCEP_MSG);
@@ -173,29 +180,29 @@ public class App implements Toupcam  {
 	public HResult startStreaming(ImageStreamCallback imageCallback) {
 		isStreaming = true;
 		this.imageCallback = imageCallback;		// caching imageCallback for later use, in case of start/restart
-		
+
 		int result = libToupcam.Toupcam_StartPushMode(getCamHandler(), 
 				(Pointer imagePointer, Pointer imageMetaData, boolean isSnapshot) -> {
 
 					ImageHeader header = ParserUtil.parseImageHeader(imageMetaData);
-					
+
 					if(imageCallback instanceof ByteImageStreamCallback){
 						byte[] imageBytes = Util.convertImagePointerToByteArray(imagePointer, 
 								header.getWidth(), header.getHeight());
-						
+
 						if(isSnapshot)
 							imageCallback.onReceiveStillImage(imageBytes, header);						
 						else imageCallback.onReceivePreviewImage(imageBytes, header);
-						
+
 					}else if(imageCallback instanceof BufferedImageStreamCallback){
 						BufferedImage image = Util.convertImagePointerToImage(
 								imagePointer, header.getWidth(), header.getHeight());
-						
+
 						if(isSnapshot)
 							imageCallback.onReceiveStillImage(image, header);						
 						else imageCallback.onReceivePreviewImage(image, header);
 					}
-					 
+
 				}, Pointer.NULL);
 		return HResult.key(result);
 	}
@@ -218,7 +225,7 @@ public class App implements Toupcam  {
 	public App(){
 		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) NativeUtils.getNativeLib();
-		camHandler = openCam(null);
+		camHandler = openCam(null); 		// by default picks up the first toupcam connected to system.
 		//	Util.keepVMRunning();				// keep JVM from terminating, not needed inside tomcat.
 	}
 
