@@ -40,7 +40,6 @@ public class App implements Toupcam  {
 
 	private LibToupcam libToupcam = null;
 	private Pointer camHandler;
-	private JFrame jFrame;
 
 	private boolean isStreaming = false;
 
@@ -223,22 +222,9 @@ public class App implements Toupcam  {
 	}
 
 	public App(){
-		//jFrame = createJFrame();
 		libToupcam = (LibToupcam) NativeUtils.getNativeLib();
 		camHandler = openCam(null); 		// by default picks up the first toupcam connected to system.
 		//	Util.keepVMRunning();				// keep JVM from terminating, not needed inside tomcat.
-	}
-
-	private JFrame createJFrame(){
-		JFrame frame = new JFrame();
-		frame.setSize(1000, 750);
-		frame.setResizable(false);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("Toupcam Java Wrapper");
-		JLabel imageContainer = new JLabel();
-		frame.add(imageContainer);
-		return frame;
 	}
 
 	public void registerPlugInOrOut(){
