@@ -83,8 +83,8 @@ public class Util {
 	public static void writeImageToDisk(BufferedImage image){
 		createImageDir();		// prefer displaying images on JFrame, in that case remove this line. 
 		try {
-			ImageIO.write(image, "png", new File(
-					Constants.IMAGES_PATH + "/image" + imageCounter++ + ".png"));
+			ImageIO.write(image, "jpg", new File(
+					Constants.IMAGES_PATH + "/image" + imageCounter++ + ".jpg"));
 		} catch (Exception e) {
 			System.out.println("Exception thrown during convertion : " + e);
 		}

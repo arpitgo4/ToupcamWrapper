@@ -69,15 +69,16 @@ public class App implements Toupcam  {
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
+				Util.writeImageToDisk(image);
 			}
 
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 		};
 		
-	//	app.startStreaming(imageCallback);
+		app.startStreaming(imageCallback);
 	//	app.stopStreaming();
-		System.out.println("Trigger images");
-		app.getTriggerImages(10);
+	//	System.out.println("Trigger images");
+	//	app.getTriggerImages(10);
 		
 		
 		
