@@ -1,6 +1,7 @@
 package wrapper.toupcam;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import wrapper.toupcam.callbacks.PTOUPCAM_HOTPLUG_CALLBACK;
 import wrapper.toupcam.enumerations.Event;
 import wrapper.toupcam.enumerations.HResult;
 import wrapper.toupcam.enumerations.Options;
+import wrapper.toupcam.enumerations.TriggerMode;
 import wrapper.toupcam.exceptions.StreamingException;
 import wrapper.toupcam.libraries.LibToupcam;
 import wrapper.toupcam.models.Image;
@@ -69,40 +71,53 @@ public class App implements Toupcam  {
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
 				System.out.println(imageHeader);
-				Util.writeImageToDisk(image);
+			//	byte[] imageBytes = Util.compressBufferedImageByteArray(image);
+			//	Util.writeImageToDisk(Util.compressBufferedImage(image));
+				try {
+					Util.saveJPG(Util.compressBufferedImage(image));
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+				}
 			}
 
 			@Override public void onReceiveStillImage(BufferedImage image, ImageHeader imageHeader) {}
 		};
 		
-		app.startStreaming(imageCallback);
+	//	app.startStreaming(imageCallback);
 	//	app.stopStreaming();
 	//	System.out.println("Trigger images");
 	//	app.getTriggerImages(10);
 		
-		
-		
-		/*try{
-			Thread.sleep(4000);
-			app.pauseStreaming();
-			System.out.println("----- Image Streaming Paused -----");
-			Thread.sleep(2000);
-			System.out.println("----- Resuming Image Stream -----");
-			app.resumeStreaming();
-		}catch(Exception e){System.out.println(e);}*/
-
-		
-		/*try{
-			Thread.sleep(4000);
-			app.stopStreaming();
-			System.out.println("----- Image Streaming Stopped -----");
-			Thread.sleep(2000);
-			app.startStreaming(imageCallback);
-			System.out.println("----- Image Streaming Restarted -----");
-		}catch(Exception e){System.out.println(e);}*/
-
 		//app.startPushModeCam(app.camHandler);
+		app.startStreaming(imageCallback);
 		//app.startPullMode(handler);
+		
+		System.out.println("Trigger Mode : " + app.getOptions(Options.OPTION_TRIGGER));
+		System.out.println("Set Trigger Mode Result: " + app.setTriggerMode(1));
+	//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
+		
+		try{
+		//	Thread.sleep(5000);
+			System.out.println("Activating Video Mode: ");
+			app.setTriggerMode(0);
+		}catch(Exception e){}
+		
+		//app.stopStreaming();
+	}
+	
+	public HResult setTriggerMode(int mode){
+		return setOptions(Options.OPTION_TRIGGER, mode);
+	}
+	
+	private HResult setOptions(Options option, int value){
+		return HResult.key(libToupcam.Toupcam_put_Option(getCamHandler(), option.getValue(), value));
+	}
+	
+	private int getOptions(Options option){
+		Pointer pointer = new Memory(4);
+		libToupcam.Toupcam_get_Option(getCamHandler(), option.getValue(), pointer);
+		return pointer.getInt(0);
 	}
 	
 	@Override
@@ -202,7 +217,7 @@ public class App implements Toupcam  {
 
 	public App(){
 		//jFrame = createJFrame();
-		libToupcam = (LibToupcam) getNativeLib();
+		libToupcam = (LibToupcam) NativeUtils.getNativeLib();
 		camHandler = openCam(null);
 		//	Util.keepVMRunning();				// keep JVM from terminating, not needed inside tomcat.
 	}
@@ -217,32 +232,6 @@ public class App implements Toupcam  {
 		JLabel imageContainer = new JLabel();
 		frame.add(imageContainer);
 		return frame;
-	}
-
-	/**
-	 * Checks for the machine's architecture and OS, load 
-	 * and returns machine specific native library.
-	 * 
-	 * Machine Architecture: 32-bit or 64-bit
-	 * OS: Linux or Windows
-	 *  
-	 * Note: To load native library JNA requires absolute path.
-	 * @return
-	 */
-	private Object getNativeLib(){
-		Object nativeLib;
-		if(Platform.is64Bit()){
-			if(Platform.isLinux())
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_SO, LibToupcam.class);
-			else
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x64_TOUPCAM_DLL, LibToupcam.class);
-		}else {
-			if(Platform.isLinux())
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_SO, LibToupcam.class);
-			else
-				nativeLib = (LibToupcam) NativeUtils.loadLibrary(Constants.x86_TOUPCAM_DLL, LibToupcam.class);
-		}
-		return nativeLib;
 	}
 
 	public void registerPlugInOrOut(){
@@ -351,7 +340,7 @@ public class App implements Toupcam  {
 				ImageHeader header = ParserUtil.parseImageHeader(imageMetaDataPointer);
 				System.out.println(header);
 				Util.convertImagePointerToImage(imagePointer, 
-						header.getWidth(), header.getHeight());  // 1280 * 960
+						header.getWidth(), header.getHeight());  
 
 				//JLabel label = (JLabel) jFrame.getComponent(0);
 				//label.setIcon(new ImageIcon(image));
