@@ -65,11 +65,11 @@ public class App implements Toupcam  {
 		//System.out.println("Set RAW Options Result: " + app.setOptions(handler, Options.OPTION_RAW, 1));
 
 		ImageStreamCallback imageCallback = new BufferedImageStreamCallback(){
+			int imageCounter = 0;
 			@Override public void onReceivePreviewImage(BufferedImage image, ImageHeader imageHeader) {					
 				Native.setProtected(true);
-				System.out.println(imageHeader);
 				//	byte[] imageBytes = Util.compressBufferedImageByteArray(image);
-				//	Util.writeImageToDisk(Util.compressBufferedImage(image));
+					Util.writeImageToDisk(Util.compressBufferedImage(image));
 				/*try {
 					Util.saveJPG(Util.compressBufferedImage(image));
 				} catch (IOException e) {
@@ -78,6 +78,7 @@ public class App implements Toupcam  {
 				}*/
 				
 				System.out.println(imageHeader);
+				System.out.println("Total Images Received: " + ++imageCounter);
 			}
 
 			int stillCounter = 0;
