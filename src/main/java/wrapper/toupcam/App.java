@@ -51,7 +51,14 @@ public class App implements Toupcam  {
 	//	List<ToupcamInst> cams = app.getToupcams();	// some pointer issue in windows
 	//	System.out.println(cams);		
 
+	//	System.out.println(app.getResolutionNumbers());
+	//	System.out.println(app.getResolutions());
+		
+		for(Resolution res : app.getResolutions())
+			System.out.println(res);
+		
 		int camsConnected = app.countConnectedCams();
+	//	System.out.println(app.getToupcams());
 		if(camsConnected == 0){
 			System.out.println("No Toupcams detected");
 			System.exit(-1);
@@ -106,7 +113,7 @@ public class App implements Toupcam  {
 	//	System.out.println("Set Trigger Mode Result: " + app.setTriggerMode(TriggerMode.TOUPCAM_FLAG_TRIGGER_SINGLE.getValue()));
 		//	System.out.println("Get Trigger Images Result: " + app.getTriggerImages(10));
 
-		app.startStreaming(imageCallback);
+		//app.startStreaming(imageCallback);
 		/*for(int i = 0; i < 10; i++)
 			app.getStillImage(0);*/
 		/*try{
@@ -248,6 +255,20 @@ public class App implements Toupcam  {
 			}
 		});
 	}
+	
+	public int getResolutionNumbers(){
+		Pointer widthArray = new Memory(4);
+		Pointer heightArray = new Memory(4);
+		int result = libToupcam.Toupcam_get_ResolutionNumber(camHandler, 0, widthArray, heightArray);
+		return result;
+	}
+	
+	public Resolution getResolution(int resolutionIndex){
+		Pointer widthPointer = new Memory(4);
+		Pointer heightPointer = new Memory(4);
+		int result = libToupcam.Toupcam_get_Resolution(camHandler, resolutionIndex, widthPointer, heightPointer);
+		return new Resolution(widthPointer.getInt(0), heightPointer.getInt(0));
+	}
 
 	public RawFormat getRawFormat(Pointer handler){
 		Pointer nFourCC = new Memory(4), bitdepth = new Memory(4);
@@ -272,19 +293,20 @@ public class App implements Toupcam  {
 		int count_cams = libToupcam.Toupcam_Enum(structurePointer);
 		for(int i = 0 ; i < count_cams; i++) toupcamInstList.add(new ToupcamInst());
 
-
 		toupcamInstList.forEach(toupcamInst -> {
 
 			int structurePointerOffset = 0;
 			toupcamInst.setDisplayName(structurePointer.getString(structurePointerOffset));
+			System.out.println(toupcamInst.getDisplayName());
 			structurePointerOffset += 64;
 			toupcamInst.setId(structurePointer.getString(structurePointerOffset));
+			System.out.println(toupcamInst.getId());
 			structurePointerOffset += 64;
 
 			Pointer modelPointer = structurePointer.getPointer(structurePointerOffset);
 			int modelPointerOffset = 0;
 			toupcamInst.setModel(new Model());
-
+			
 			toupcamInst.getModel().setName(modelPointer.getPointer(modelPointerOffset).getString(0));
 			modelPointerOffset += Pointer.SIZE;
 			toupcamInst.getModel().setFlag(modelPointer.getInt(modelPointerOffset));
@@ -382,6 +404,16 @@ public class App implements Toupcam  {
 
 	public Pointer getCamHandler() {return camHandler;}
 	public void setCamHandler(Pointer camHandler) {this.camHandler = camHandler;}
+
+	@Override
+	public Resolution[] getResolutions() {
+		int resolutionCount = getResolutionNumbers();
+		Resolution[] resolutions = new Resolution[resolutionCount];
+		for(int i = 0; i < resolutionCount; i++){
+			resolutions[i] = getResolution(i);
+		}
+		return resolutions;
+	}
 
 
 }

@@ -4,6 +4,14 @@ public class Resolution implements IModel {
 
 	public long width;
 	public long height;
+	
+	public Resolution(){}
+	
+	public Resolution(int width, int height){
+		this.width = width;
+		this.height = height;
+	}
+	
 	public long getWidth() {
 		return width;
 	}

@@ -36,6 +36,9 @@ public interface LibToupcam extends Library {
 	
 	int Toupcam_Trigger(Pointer handler, int number);
 	
+	int Toupcam_get_ResolutionNumber(Pointer handler, int resolutionIndex, Pointer width, Pointer height);
+	
+	int Toupcam_get_Resolution(Pointer handler, int resolutionIndex, Pointer width, Pointer height);
 	/**
 	 * To set various options for the toupcam to work.
 	 * Like set Raw format images, quality of received images.
